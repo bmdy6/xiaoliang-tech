@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>xiaoliang.tech 首页设计稿</title>
+<style>
+:root{
+  --paper:#F3EFE6; --surface:#FAF7F0; --ink:#1B1915; --ink2:#4A453D; --mute:#857D70;
+  --rule:#D8D0C0; --rule2:#E6DFD1; --red:#BF3A21; --dark:#1F1C18;
+  --serif:"Noto Serif CJK SC","Source Han Serif SC",serif;
+  --sans:"Noto Sans CJK SC","Source Han Sans SC",sans-serif;
+  --latin:"Fraunces","Noto Serif CJK SC",serif;
+  --mono:"Geist Mono","IBM Plex Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{width:1200px;margin:0 auto}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+
+/* 顶栏 */
+header{display:flex;align-items:center;justify-content:space-between;padding:36px 0 0}
+.brand{display:flex;align-items:center;gap:14px}
+.seal{width:38px;height:38px;background:var(--red);color:#FBF3E8;font-family:var(--serif);font-weight:700;font-size:22px;display:grid;place-items:center;border-radius:5px;line-height:1}
+.brand b{font-family:var(--latin);font-weight:500;font-size:19px;letter-spacing:.01em}
+nav{display:flex;gap:40px;font-size:15px;color:var(--ink2);align-items:center}
+nav .on{color:var(--ink);border-bottom:1.5px solid var(--red);padding-bottom:3px}
+nav .gh{font-family:var(--mono);font-size:13px;border:1px solid var(--rule);padding:7px 14px;border-radius:99px;color:var(--ink)}
+
+/* 首屏 */
+.hero{display:grid;grid-template-columns:700px 1fr;gap:64px;padding:118px 0 92px;align-items:end}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:92px;line-height:1.16;letter-spacing:-.01em;margin-top:26px}
+.hero h1 i{font-style:normal;color:var(--red)}
+.hero p{font-size:18px;line-height:1.9;color:var(--ink2);margin-top:36px;width:560px}
+.cta{display:flex;gap:28px;align-items:center;margin-top:44px}
+.btn{background:var(--ink);color:var(--paper);padding:15px 28px;border-radius:99px;font-size:15px}
+.link{font-size:15px;border-bottom:1px solid var(--ink);padding-bottom:2px}
+
+.mcp{background:var(--dark);color:#E9E2D4;border-radius:14px;padding:26px 28px 28px;font-family:var(--mono);font-size:13.5px;line-height:1.85;box-shadow:0 30px 60px -30px rgba(40,30,15,.45)}
+.mcp .top{display:flex;justify-content:space-between;color:#9A9183;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding-bottom:16px;border-bottom:1px solid #3A352E;margin-bottom:18px}
+.mcp .top span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:9px;vertical-align:1px}
+.mcp .k{color:#9A9183}.mcp .s{color:#E3B9A6}
+.mcp .q{margin-top:20px;padding-top:18px;border-top:1px solid #3A352E;font-family:var(--sans);font-size:14.5px;line-height:1.8}
+.mcp .q .u{color:#FBF3E8}.mcp .q .u::before{content:"›";color:var(--red);margin-right:10px;font-family:var(--mono)}
+.mcp .q .a{color:#B5AC9C;margin-top:8px;padding-left:19px}
+.mcp .q .a b{color:#E9E2D4;font-weight:500}
+.cap{font-size:13.5px;color:var(--mute);margin-top:16px;padding-left:4px}
+
+/* 数字条 */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--rule)}
+.facts div{padding:26px 0 28px 28px;border-left:1px solid var(--rule)}
+.facts div:first-child{border-left:0;padding-left:0}
+.facts b{font-family:var(--latin);font-weight:400;font-size:52px;line-height:1;display:block;letter-spacing:-.02em}
+.facts span{font-size:14px;color:var(--ink2);display:block;margin-top:10px}
+
+/* 分区标题 */
+section{padding:112px 0 0}
+.sh{display:grid;grid-template-columns:120px 1fr auto;align-items:end;padding-bottom:30px}
+.sh .n{font-family:var(--latin);font-style:italic;font-size:20px;color:var(--red)}
+.sh h2{font-family:var(--serif);font-weight:700;font-size:44px;line-height:1.2}
+.sh h2 small{font-family:var(--sans);font-weight:400;font-size:16px;color:var(--mute);margin-left:18px}
+.chips{display:flex;gap:8px;font-size:13.5px}
+.chips span{padding:6px 15px;border:1px solid var(--rule);border-radius:99px;color:var(--ink2)}
+.chips .on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* 作品 */
+.feat{display:grid;grid-template-columns:700px 1fr;gap:24px}
+.card{background:var(--surface);border:1px solid var(--rule2);border-radius:14px;padding:32px;position:relative}
+.tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.tag em{font-style:normal;color:var(--red)}
+.card h3{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.3;margin-top:10px}
+.card p{color:var(--ink2);font-size:15.5px;margin-top:10px;line-height:1.8}
+.card .go{position:absolute;right:30px;top:30px;width:36px;height:36px;border:1px solid var(--rule);border-radius:50%;display:grid;place-items:center;font-size:15px}
+.big{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.big .txt{padding:34px 36px 30px}
+.big h3{font-size:38px}
+.stage{flex:1;display:flex;flex-direction:column;justify-content:center;background:#EAE4D6;border-top:1px solid var(--rule2);padding:40px 56px 44px;min-height:330px}
+.win{background:#FDFBF6;border:1px solid var(--rule);border-radius:12px;padding:20px 22px;box-shadow:0 18px 36px -22px rgba(40,30,15,.35)}
+.win .bar{display:flex;gap:6px;margin-bottom:16px}.win .bar i{width:9px;height:9px;border-radius:50%;background:#D9D1C1}
+.win .old{color:#A69D8E;text-decoration:line-through;text-decoration-color:#C9BFAD;font-size:15px}
+.win .new{font-size:16.5px;margin-top:10px;color:var(--ink);line-height:1.75}
+.win .new mark{background:none;border-bottom:2px solid var(--red);color:inherit}
+.win .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1px dashed var(--rule);font-size:12.5px;color:var(--mute)}
+.win .foot b{font-weight:500;color:var(--red)}
+.win kbd{font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule);border-radius:5px;padding:2px 8px;color:var(--ink2);background:var(--surface)}
+.side{display:grid;gap:24px}
+.side .card{padding:30px 32px 28px}
+.meta{display:flex;gap:18px;margin-top:20px;padding-top:16px;border-top:1px solid var(--rule2);font-family:var(--mono);font-size:12px;color:var(--mute)}
+.srcs{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.srcs span{font-size:12.5px;padding:3px 11px;border-radius:99px;background:#EDE7DA;color:var(--ink2)}
+
+.idx{margin-top:56px;border-top:1px solid var(--ink)}
+.row{display:grid;grid-template-columns:120px 250px 1fr 130px 90px 30px;align-items:baseline;padding:21px 0;border-bottom:1px solid var(--rule)}
+.row .no{font-family:var(--latin);font-style:italic;color:var(--mute);font-size:15px}
+.row .nm{font-family:var(--serif);font-weight:700;font-size:20px}
+.row .ds{color:var(--ink2);font-size:15px;padding-right:40px}
+.row .ty,.row .lg{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.row .ar{text-align:right;color:var(--mute)}
+.more{padding:22px 0 0 120px;font-size:15px}
+
+/* 书房 */
+.study{display:grid;grid-template-columns:660px 1fr;gap:72px;align-items:end;border-top:1px solid var(--ink);padding-top:56px}
+.shelf{display:flex;align-items:flex-end;gap:7px;height:400px;border-bottom:5px solid var(--ink);padding:0 14px}
+.sp{writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.14em;display:flex;align-items:center;justify-content:space-between;padding:22px 0 16px;border-radius:3px 3px 0 0;position:relative}
+.sp small{font-family:var(--latin);font-weight:400;font-style:italic;font-size:13px;letter-spacing:.04em;writing-mode:horizontal-tb;opacity:.7}
+.sp::after{content:"";position:absolute;left:0;right:0;top:12px;border-top:1px solid currentColor;opacity:.3}
+.note .tag{display:block;margin-bottom:14px}
+.note h3{font-family:var(--serif);font-weight:700;font-size:28px;line-height:1.45}
+.note blockquote{margin-top:24px;padding:20px 24px;background:var(--surface);border:1px solid var(--rule2);border-left:3px solid var(--red);border-radius:0 10px 10px 0;font-size:15.5px;line-height:1.85;color:var(--ink2)}
+.note blockquote b{display:block;font-size:12.5px;color:var(--red);font-weight:500;letter-spacing:.06em;margin-bottom:6px}
+.note p{font-size:15.5px;color:var(--ink2);margin-top:22px;line-height:1.85}
+.note .cta{margin-top:30px}
+
+/* 做法 */
+.how{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink)}
+.how div{padding:30px 28px 6px 0;position:relative}
+.how div+div{padding-left:28px;border-left:1px solid var(--rule)}
+.how .who{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+.how h4{font-family:var(--serif);font-weight:700;font-size:23px;margin-top:10px}
+.how p{font-size:14.5px;color:var(--ink2);margin-top:8px;line-height:1.8}
+.hownote{margin-top:34px;font-size:15px;color:var(--mute);padding-left:0}
+
+/* 页脚 */
+footer{margin-top:128px;background:var(--dark);color:#E9E2D4;padding:92px 0 40px}
+footer .f1{display:grid;grid-template-columns:1fr auto;align-items:end;padding-bottom:64px;border-bottom:1px solid #3A352E}
+footer h2{font-family:var(--serif);font-weight:700;font-size:58px;line-height:1.28}
+footer h2 i{font-style:normal;color:#E0674C}
+footer .ls{display:flex;gap:12px}
+footer .ls a{border:1px solid #4A443B;padding:12px 24px;border-radius:99px;font-size:15px}
+footer .ls a.p{background:#F3EFE6;color:var(--ink);border-color:#F3EFE6}
+footer .f2{display:flex;justify-content:space-between;padding-top:26px;font-family:var(--mono);font-size:12px;color:#8F8678;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand"><span class="seal">肖</span><b>xiaoliang.tech</b></a>
+    <nav><a class="on">首页</a><a>作品</a><a>书房</a><a>文章</a><a>关于</a><a class="gh">GitHub ↗</a></nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="mono">AI 应用开发　/　MCP · Agent · macOS</div>
+      <h1>给 AI 造工具，<br>也让 AI <i>一起造</i>。</h1>
+      <p>我是肖，做 AI 应用开发。这里放着我做的 MCP 服务、Agent 技能和应用，还有边做边写下来的 8 本笔记。</p>
+      <div class="cta"><a class="btn">看作品　→</a><a class="link">进书房读笔记</a></div>
+    </div>
+    <div>
+      <div class="mcp">
+        <div class="top"><span>把这个站接进你的 AI</span><span>MCP</span></div>
+        <div><span class="k">{</span> <span class="s">"mcpServers"</span><span class="k">: {</span></div>
+        <div>　<span class="s">"xiaoliang"</span><span class="k">: {</span></div>
+        <div>　　<span class="s">"url"</span><span class="k">:</span> <span class="s">"https://xiaoliang.tech/mcp"</span></div>
+        <div>　<span class="k">}</span></div>
+        <div><span class="k">} }</span></div>
+        <div class="q">
+          <div class="u">他做过哪些 MCP？</div>
+          <div class="a">6 个：<b>research-mcp</b>、<b>footage-mcp</b>、<b>mac-doctor-mcp</b>、<b>knowledge-mcp</b>……每个都附仓库和实现说明。</div>
+        </div>
+      </div>
+      <div class="cap">不想翻页面？让你的 AI 直接问这个站。</div>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div><b>24</b><span>个公开仓库</span></div>
+    <div><b>6</b><span>个 MCP 服务</span></div>
+    <div><b>5</b><span>个 Agent 技能</span></div>
+    <div><b>61</b><span>章笔记，分在 8 本书里</span></div>
+  </div>
+
+  <section>
+    <div class="sh">
+      <span class="n">01</span>
+      <h2>作品<small>都开源，都能直接装</small></h2>
+      <div class="chips"><span class="on">全部</span><span>MCP</span><span>技能</span><span>应用</span><span>Agent</span></div>
+    </div>
+
+    <div class="feat">
+      <div class="card big">
+        <div class="txt">
+          <div class="tag"><em>应用</em>　·　macOS　·　Swift</div>
+          <h3>StylePolish 润色</h3>
+          <p>在 macOS 任意输入框里停笔后帮你润色，保留你的口吻。发不发送，仍由你自己按。</p>
+          <a class="go">↗</a>
+        </div>
+        <div class="stage">
+          <div class="win">
+            <div class="bar"><i></i><i></i><i></i></div>
+            <div class="old">那个方案我看了感觉还行吧但是有几个地方可能要再改改</div>
+            <div class="new">方案我看过了，整体可以，<mark>有两处想再和你对一下</mark>。</div>
+            <div class="foot"><span><b>已润色</b>　保留了你的语气</span><span><kbd>Tab</kbd> 采用　<kbd>Esc</kbd> 保留原文</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card">
+          <div class="tag"><em>MCP</em>　·　Python</div>
+          <h3>research-mcp</h3>
+          <p>给 AI agent 的搜索与读原文工具。一次搜多个来源，还能读 PR 审查评论和视频文字稿。</p>
+          <div class="srcs"><span>GitHub</span><span>Hacker News</span><span>B 站</span><span>掘金</span><span>全网</span></div>
+          <a class="go">↗</a>
+          <div class="meta"><span>CLI + MCP</span><span>怎么做出来的 →</span></div>
+        </div>
+        <div class="card">
+          <div class="tag"><em>MCP</em>　·　Python</div>
+          <h3>mac-doctor-mcp</h3>
+          <p>让 AI 检查 Mac 的内存和存储，给出清理计划。你确认才执行，还能回滚。</p>
+          <a class="go">↗</a>
+          <div class="meta"><span>先确认 · 可回滚</span><span>怎么做出来的 →</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="idx">
+      <div class="row"><span class="no">04</span><span class="nm">footage-mcp</span><span class="ds">给 AI 做视频的免费素材库，先看帧再下载，带授权与署名</span><span class="ty">MCP</span><span class="lg">Python</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">05</span><span class="nm">knowledge-mcp</span><span class="ds">Markdown 为知识源、Git 管版本、MCP 做入口的个人知识库</span><span class="ty">MCP</span><span class="lg">Python</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">06</span><span class="nm">readme-from-code</span><span class="ds">读代码写 README：每条命令跑过，每个说法有出处</span><span class="ty">技能</span><span class="lg">JS</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">07</span><span class="nm">design-from-sites</span><span class="ds">把你喜欢的网站变成可追溯的设计变量</span><span class="ty">技能</span><span class="lg">JS</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">08</span><span class="nm">精卫 jingwei</span><span class="ds">会自己复盘的通用 AI Agent：ReAct 循环、运行时工具注册、两层记忆</span><span class="ty">Agent</span><span class="lg">Python</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">09</span><span class="nm">repo-tutor</span><span class="ds">把一个陌生代码库变成新人课程，每节课带出处</span><span class="ty">Agent</span><span class="lg">Python</span><span class="ar">→</span></div>
+      <div class="row"><span class="no">10</span><span class="nm">知了 StudyBuddy</span><span class="ds">孩子知道第一步做什么，家长在微信里看见孩子学了什么</span><span class="ty">应用</span><span class="lg">Python</span><span class="ar">→</span></div>
+    </div>
+    <div class="more"><a class="link">查看全部 24 个仓库</a></div>
+  </section>
+
+  <section>
+    <div class="sh">
+      <span class="n">02</span>
+      <h2>书房<small>边做边写的笔记，按书和章节读</small></h2>
+      <div></div>
+    </div>
+    <div class="study">
+      <div class="shelf">
+        <div class="sp" style="width:78px;height:372px;background:#BF3A21;color:#FBF3E8">AI Agent 学习<small>9</small></div>
+        <div class="sp" style="width:84px;height:340px;background:#2A2621;color:#E9E2D4">系统架构与工程化<small>9</small></div>
+        <div class="sp" style="width:66px;height:386px;background:#D9CFBA;color:#2A2621">大模型基础<small>5</small></div>
+        <div class="sp" style="width:76px;height:352px;background:#6B6457;color:#F3EFE6">前端与交互设计<small>7</small></div>
+        <div class="sp" style="width:70px;height:322px;background:#EDE6D6;color:#2A2621;border:1px solid #D0C7B4;border-bottom:0">个人表达<small>9</small></div>
+        <div class="sp" style="width:66px;height:366px;background:#3E3931;color:#E9E2D4">思考与研究方法<small>5</small></div>
+        <div class="sp" style="width:86px;height:392px;background:#C9BEA7;color:#2A2621">调研与决策<small>10</small></div>
+        <div class="sp" style="width:74px;height:334px;background:#8C8474;color:#FBF7EE">个人产品实践<small>7</small></div>
+      </div>
+      <div class="note">
+        <span class="tag"><em>最近更新</em>　·　《AI Agent 学习》第 2 章</span>
+        <h3>意图路由、工具选择与失败降级</h3>
+        <blockquote><b>我踩过的坑</b>我问过：“问天气时 Agent 调工具，工具算路由吗？”——工具数量不等于路由数量。</blockquote>
+        <p>每一章都记着我当时问错了什么、后来怎么想通的，正文带来源和核对日期。</p>
+        <div class="cta"><a class="btn">进入书房　→</a><a class="link">全部 8 本</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh">
+      <span class="n">03</span>
+      <h2>怎么做出来的<small>一个人，带两个 AI</small></h2>
+      <div></div>
+    </div>
+    <div class="how">
+      <div><span class="who">我</span><h4>定需求</h4><p>想清楚要解决什么问题，哪些不做。</p></div>
+      <div><span class="who">Claude</span><h4>写 Issue、出设计图</h4><p>把需求写成能直接开工的任务，附验收标准。</p></div>
+      <div><span class="who">Codex</span><h4>开发、测试、部署</h4><p>小轮迭代，每轮提一个 PR。</p></div>
+      <div><span class="who">Claude → 我</span><h4>审查，最后验收</h4><p>中间每轮先审过，我只看最终结果。</p></div>
+    </div>
+    <div class="hownote">每个作品页都附真实的 Issue 和 PR 链接，过程可以逐条查。</div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="f1">
+      <h2>在找 AI 应用开发的机会，<br><i>聊聊？</i></h2>
+      <div class="ls"><a class="p">看简历</a><a>GitHub ↗</a><a>掘金 ↗</a></div>
+    </div>
+    <div class="f2"><span>© 2026 XIAOLIANG.TECH</span><span>这个站也可以通过 MCP 访问　·　/MCP</span></div>
+  </div>
+</footer>
+</body>
+</html>
