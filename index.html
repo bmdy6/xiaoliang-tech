@@ -82,11 +82,11 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .scroll-hint{position:absolute;left:var(--gut);bottom:7vh;z-index:4}
 
 /* ---------- 像素块转场 ---------- */
-.pixels{position:relative;height:55vh;pointer-events:none;z-index:5;background:var(--paper)}
-.pixels.to-paper{background:var(--dark)}
+/* 方块盖在下一节的顶部，滚动时一格格消失，露出下一节（不再留一段空的纯色） */
+.pixels{position:relative;height:34vh;margin-bottom:-34vh;pointer-events:none;z-index:7}
 .pixels .grid{height:100%;display:grid}
-.pixels .grid i{background:var(--dark);opacity:0;transition:opacity .12s linear}
-.pixels.to-paper .grid i{background:var(--paper)}
+.pixels .grid i{background:var(--paper);transition:opacity .12s linear}
+.pixels.to-paper .grid i{background:var(--dark)}
 
 /* ---------- 作品：路标（Hiroto） ---------- */
 .work{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:12vh var(--gut) 14vh;overflow-x:clip}
@@ -192,8 +192,20 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .contact .links{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px}
 .contact .links a{border:1px solid #4a433a;padding:12px 18px;border-radius:3px;font-size:15px}
 .contact .links a:hover{background:var(--red);border-color:var(--red)}
-.contact .how{max-width:560px;color:var(--dark-mute);margin-top:60px;font-size:14.5px}
-.contact .how b{color:var(--paper);font-weight:500}
+.contact .how{max-width:600px;color:var(--dark-mute);margin-top:56px;font-size:14px;display:grid;gap:30px}
+.contact .how .k{display:block;font-size:12px;letter-spacing:.12em;color:var(--red);margin-bottom:12px}
+.contact .chips{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.contact .chips li{border:1px solid #3a342d;border-radius:999px;padding:6px 13px;color:#d9d2c5;font-size:13px;transition:border-color .3s,color .3s,background .3s}
+.contact .chips li:hover{border-color:var(--red);color:var(--paper);background:rgba(191,58,33,.12)}
+.contact .flow{list-style:none;display:grid;grid-template-columns:.8fr 1.3fr 1fr;border-top:1px solid #3a342d}
+.contact .flow li{padding:14px 14px 0 0;line-height:1.6}
+.contact .flow li+li{padding-left:14px;border-left:1px solid #3a342d}
+.contact .flow i{display:block;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--dark-mute);margin-bottom:6px}
+.contact .flow b{display:block;color:var(--paper);font-family:var(--latin);font-weight:600;font-size:17px;margin-bottom:2px}
+.contact .note{font-size:13px;margin-top:16px}
+.contact .chips li,.contact .flow li,.contact .note{opacity:0;transform:translateY(10px);transition:opacity .6s var(--ease),transform .6s var(--ease),border-color .3s,color .3s,background .3s}
+.contact.in .chips li,.contact.in .flow li,.contact.in .note{opacity:1;transform:none}
+@media (max-width:600px){.contact .flow{grid-template-columns:1fr}.contact .flow li+li{border-left:0;padding-left:0;border-top:1px solid #3a342d;margin-top:12px}}
 .contact{overflow:hidden}
 .contact>*{position:relative;z-index:1}
 .contact .dots{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none}
@@ -380,7 +392,13 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
     <a class="btn up mag" href="https://github.com/bmdy6">GitHub <i class="ar">↗</i></a>
     <a class="btn up mag" href="https://plan.xiaoliang.tech/reader/">知识书房 <i class="ar">↗</i></a>
   </div>
-  <p class="how">技术栈：Python / FastAPI、LangGraph、MCP、RAG（混合检索 + Rerank）、Langfuse 评测追踪、React、Swift。<br><br>这些项目都是<b>一个人带两个 AI</b> 做的：我定需求、做最后验收，Claude 写 Issue、出设计、审代码，Codex 小轮开发。每个仓库都留着真实的 Issue 和 PR。</p>
+  <div class="how">
+    <div class="blk"><span class="k">技术栈</span>
+      <ul class="chips"><li>Python · FastAPI</li><li>LangGraph</li><li>MCP</li><li>RAG · 混合检索 + Rerank</li><li>Langfuse 评测追踪</li><li>React</li><li>Swift</li></ul></div>
+    <div class="blk"><span class="k">一个人带两个 AI</span>
+      <ol class="flow"><li><i>01</i><b>我</b>定需求、做最后验收</li><li><i>02</i><b>Claude</b>写 Issue、出设计、审代码</li><li><i>03</i><b>Codex</b>小轮开发、提 PR</li></ol>
+      <p class="note">每个仓库都留着真实的 Issue 和 PR，可以直接翻。</p></div>
+  </div>
   <div class="marq" aria-hidden="true"><div class="track" id="marq"><span>Let’s build with AI <i>✦</i></span><span>Agents · MCP · RAG <i>✦</i></span><span>Let’s build with AI <i>✦</i></span><span>Agents · MCP · RAG <i>✦</i></span></div></div>
   <footer class="mono"><span>© 2026 XIAOLIANG.TECH</span><span>页面源码开源 · github.com/bmdy6/xiaoliang-tech</span></footer>
 </section>
@@ -472,8 +490,9 @@ function heroScroll(){
 
 /* ---------- 像素块转场 ---------- */
 const pixelBlocks = [...document.querySelectorAll('.pixels')].map(el => {
-  const g = el.querySelector('.grid'), cols = innerWidth < 860 ? 8 : 16, rows = 9;
-  g.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  const g = el.querySelector('.grid'), cols = innerWidth < 860 ? 10 : 24;
+  const rows = Math.max(3, Math.round(el.offsetHeight / (innerWidth / cols)));   // 方块尽量是正方形
+  g.style.gridTemplateColumns = `repeat(${cols},1fr)`; g.style.gridTemplateRows = `repeat(${rows},1fr)`;
   const cells = [];
   for (let i = 0; i < cols*rows; i++) {
     const c = document.createElement('i'); g.appendChild(c);
@@ -485,8 +504,8 @@ const pixelBlocks = [...document.querySelectorAll('.pixels')].map(el => {
 function pixelScroll(){
   for (const b of pixelBlocks) {
     const r = b.el.getBoundingClientRect();
-    const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (r.height + innerHeight*.25)));
-    for (const x of b.cells) x.c.style.opacity = p > x.th ? 1 : 0;
+    const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (r.height + innerHeight*.4)));   // 方块上沿到屏幕四分之一处就铺满
+    for (const x of b.cells) x.c.style.opacity = p > x.th ? 0 : 1;
   }
 }
 
@@ -658,8 +677,11 @@ const secIO = new IntersectionObserver(es => es.forEach(e => {
   });
   h2.setAttribute('aria-label', h2.textContent); walk(h2);
 
+  // 标签和三步依次出现，出现完清掉延迟，免得悬停变慢
+  const seq = [...sec.querySelectorAll('.chips li,.flow li,.note')];
+  seq.forEach((el, i) => el.style.transitionDelay = `${.45 + i * .06}s`);
   let vis = false;
-  new IntersectionObserver(es => es.forEach(e => { vis = e.isIntersecting; if (vis) sec.classList.add('in'); }), {threshold:.2}).observe(sec);
+  new IntersectionObserver(es => es.forEach(e => { vis = e.isIntersecting; if (vis && !sec.classList.contains('in')) { sec.classList.add('in'); setTimeout(() => seq.forEach(el => el.style.transitionDelay = ''), 1800); } }), {threshold:.2}).observe(sec);
 
   // 滚动字带：自己慢慢走，滚动越快走得越快、方向跟着滚动，还会顺着速度倾斜
   const tr = $('marq'); let x = 0, dir = -1, lastY = scrollY, sk = 0;
