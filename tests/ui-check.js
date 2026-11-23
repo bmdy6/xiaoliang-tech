@@ -140,6 +140,8 @@ async function desktop(b) {
   await realClick(p, p.locator('#wx')); await p.waitForTimeout(300);
   const clip = await p.evaluate(() => navigator.clipboard.readText().catch(() => ''));
   const tip = await p.locator('#wxTip').textContent();
+  const qrShown = await p.evaluate(() => getComputedStyle(document.querySelector('.wx-wrap .qr')).opacity === '1' && document.querySelector('.wx-wrap .qr img').naturalWidth > 0);
+  ok('联系区「微信」悬停弹出二维码', qrShown);
   ok('联系区「微信」点击复制微信号', clip === 'bmdyxl' && tip.includes('已复制'), `剪贴板=${clip} 提示=${tip}`);
   ok('桌面端无 JS 报错', errs.length === 0, errs.join(' | '));
 
@@ -169,6 +171,11 @@ async function mobile(b) {
   ok('手机：点笔记本打开、下一页', open && pg.startsWith('2'), pg);
   if (open) { await p.locator('#closeb').tap(); await p.waitForTimeout(1100); }
   ok('手机：合上', !(await p.evaluate(() => document.getElementById('reader').classList.contains('open'))));
+  await goTo(p, '#contact', 0); await p.waitForTimeout(1500);
+  await p.locator('#wx').tap(); await p.waitForTimeout(500);
+  const mq = await p.evaluate(() => { const q = document.querySelector('.wx-wrap .qr'), r = q.getBoundingClientRect(); return { op: getComputedStyle(q).opacity, l: Math.round(r.left), r: Math.round(r.right) }; });
+  await p.screenshot({ path: path.resolve(__dirname, '../docs/design/wx-qr-mobile.png') });
+  ok('手机：点微信显示二维码且不出屏', mq.op === '1' && mq.l >= 0 && mq.r <= 390, JSON.stringify(mq));
   ok('手机：无横向滚动', !(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)));
   ok('手机端无 JS 报错', errs.length === 0, errs.join(' | '));
   await p.close();
