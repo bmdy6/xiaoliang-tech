@@ -139,7 +139,7 @@ async function desktop(b) {
   await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await realClick(p, p.locator('#wx')); await p.waitForTimeout(300);
   const clip = await p.evaluate(() => navigator.clipboard.readText().catch(() => ''));
-  const tip = await p.locator('#wx .tip').textContent();
+  const tip = await p.locator('#wxTip').textContent();
   ok('联系区「微信」点击复制微信号', clip === 'bmdyxl' && tip.includes('已复制'), `剪贴板=${clip} 提示=${tip}`);
   ok('桌面端无 JS 报错', errs.length === 0, errs.join(' | '));
 
