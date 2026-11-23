@@ -46,7 +46,8 @@ img{display:block;max-width:100%}
 #cross::after{top:50%;left:0;right:0;height:1px}
 #cross.big{width:56px;height:56px;margin:-28px 0 0 -28px}
 @media (pointer:coarse){#cross,#trail{display:none}}
-@media (max-width:859px){.contact .dots{display:none}}
+@media (min-width:1001px) and (max-height:820px){.contact .chips li{padding:3px 10px;font-size:12px}.contact .grp{padding:5px 0}.contact .flow li{padding-top:10px}}
+@media (max-width:1000px){.contact h2{white-space:normal}.contact .dots,.contact .c-stage{display:none}.contact .c-top,.contact .how{grid-template-columns:1fr}.contact{min-height:0;padding-top:14vh}.contact .how{gap:32px}}
 
 /* ---------- 顶栏 ---------- */
 header{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gut);mix-blend-mode:difference;color:#F3EFE6}
@@ -204,16 +205,19 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .peek span{display:block;margin-top:8px;font-size:12px;color:#cfc8bb}
 
 /* ---------- 联系 ---------- */
-.contact{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:16vh var(--gut) 6vh}
-.contact h2{font-family:var(--serif);font-weight:900;font-size:clamp(34px,6.4vw,100px);line-height:1.08}
+.contact{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:max(78px,9vh) var(--gut) 20px;min-height:100vh;display:flex;flex-direction:column;gap:clamp(22px,3.6vh,40px)}
+.contact .c-top{flex:1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:3vw;align-items:center}   /* 屏幕高出来的空间都给上排，不拉大其他间距 */
+.contact .c-stage{align-self:stretch}
+.contact .c-stage{min-height:220px}
+.contact h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,min(4.1vw,8vh),80px);line-height:1.08;white-space:nowrap}
 .contact h2 .red{color:var(--red)}
-.contact .links{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px}
+.contact .links{display:flex;gap:14px;flex-wrap:wrap;margin-top:clamp(18px,3.5vh,34px)}
 .contact .links a{border:1px solid #4a433a;padding:12px 18px;border-radius:3px;font-size:15px}
 .contact .links a:hover{background:var(--red);border-color:var(--red)}
-.contact .how{max-width:640px;color:var(--dark-mute);margin-top:56px;font-size:14px;display:grid;gap:30px}
+.contact .how{color:var(--dark-mute);font-size:14px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:3vw;align-items:start}
 .contact .how .k{display:block;font-size:12px;letter-spacing:.12em;color:var(--red);margin-bottom:12px}
 .contact .chips{list-style:none;display:flex;flex-wrap:wrap;gap:7px}
-.contact .grp{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px solid #2e2924}
+.contact .grp{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;padding:8px 0;border-top:1px solid #2e2924}
 .contact .grp em{font-style:normal;font-size:12.5px;color:var(--paper);padding-top:6px}
 @media (max-width:600px){.contact .grp{grid-template-columns:1fr;gap:8px}}
 .contact .chips li{border:1px solid #3a342d;border-radius:999px;padding:5px 12px;color:#d9d2c5;font-size:12.5px;transition:border-color .3s,color .3s,background .3s}
@@ -235,12 +239,12 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .contact h2 .red .ch:last-child{transform-origin:50% 90%}
 .contact.in h2 .red .ch:last-child{animation:nod 3.2s 1.6s var(--ease) infinite}
 @keyframes nod{0%,70%,100%{transform:none}78%{transform:rotate(-12deg)}86%{transform:rotate(8deg)}93%{transform:rotate(-3deg)}}
-.marq{margin:12vh calc(var(--gut)*-1) 0;overflow:hidden;white-space:nowrap;border-top:1px solid #3a342d;border-bottom:1px solid #3a342d;padding:2vh 0}
+.marq{margin:0 calc(var(--gut)*-1);overflow:hidden;white-space:nowrap;border-top:1px solid #3a342d;border-bottom:1px solid #3a342d;padding:1.4vh 0}
 .marq .track{display:inline-flex;will-change:transform}
-.marq span{font-family:var(--latin);font-weight:900;font-size:clamp(44px,8vw,128px);line-height:1;padding-right:.6em;color:transparent;-webkit-text-stroke:1px #6b6157;transition:color .4s,-webkit-text-stroke-color .4s}
+.marq span{font-family:var(--latin);font-weight:900;font-size:clamp(36px,min(5.5vw,9vh),96px);line-height:1;padding-right:.6em;color:transparent;-webkit-text-stroke:1px #6b6157;transition:color .4s,-webkit-text-stroke-color .4s}
 .marq span i{font-style:normal;color:var(--red);-webkit-text-stroke:0}
 .marq:hover span{-webkit-text-stroke-color:var(--paper)}
-.contact footer{margin-top:6vh;display:flex;justify-content:space-between;color:var(--dark-mute);border-top:1px solid #3a342d;padding-top:18px;flex-wrap:wrap;gap:10px}
+.contact footer{margin-top:-8px;display:flex;justify-content:space-between;color:var(--dark-mute);border-top:1px solid #3a342d;padding-top:18px;flex-wrap:wrap;gap:10px}
 
 .rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .rv.in{opacity:1;transform:none}
@@ -412,10 +416,15 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
 <!-- 联系 -->
 <section class="contact" id="contact">
   <canvas class="dots" id="dots" aria-hidden="true"></canvas>
+  <div class="c-top">
+  <div class="c-head">
   <h2>在找 AI 应用开发的机会，<br><span class="red">聊聊？</span></h2>
   <div class="links">
     <a class="btn up mag" href="https://github.com/bmdy6">GitHub <i class="ar">↗</i></a>
     <a class="btn up mag" href="https://plan.xiaoliang.tech/reader/">知识书房 <i class="ar">↗</i></a>
+  </div>
+  </div>
+  <div class="c-stage" aria-hidden="true"></div>
   </div>
   <div class="how">
     <div class="blk"><span class="k">技术栈</span>
@@ -782,11 +791,8 @@ const secIO = new IntersectionObserver(es => es.forEach(e => {
   const WORDS = ['聊聊', 'AI', 'MCP', 'Agent', 'RAG'], STEP = 6, HOLD = 3200;
   let W = 0, H = 0, ps = [], shapes = [], wi = 0, nextAt = 0, cx = -999, cy = -999, ready = false;
   const area = () => {
-    const sr = sec.getBoundingClientRect(), hr = h2.getBoundingClientRect(), mr = tr.parentNode.getBoundingClientRect();
-    const hw = sec.querySelector('.how').getBoundingClientRect().right - sr.left;
-    const x0 = Math.round(Math.max(W * .42, hw + 48)), top = Math.round(hr.bottom - sr.top + 10), bot = Math.round(mr.top - sr.top - 24);
-    const h = Math.min(420, Math.max(140, bot - top)), y = Math.round(top + Math.min(80, (bot - top - h) / 2));   // 字高封顶，放在偏上的位置
-    return { x: x0, y, w: Math.round(W * .97) - x0, h };
+    const sr = sec.getBoundingClientRect(), st = sec.querySelector('.c-stage').getBoundingClientRect();
+    return { x: Math.round(st.left - sr.left), y: Math.round(st.top - sr.top), w: Math.round(st.width), h: Math.round(st.height) };
   };
   const sample = (word, b) => {
     const o = document.createElement('canvas'); o.width = b.w; o.height = b.h;
@@ -808,7 +814,7 @@ const secIO = new IntersectionObserver(es => es.forEach(e => {
   const build = () => {
     const dpr = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
     W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (innerWidth < 860) { ready = false; return; }
+    if (innerWidth <= 1000) { ready = false; return; }
     const b = area(); shapes = WORDS.map(w => sample(w, b));
     const n = Math.max(...shapes.map(x => x.length));
     while (ps.length < n) ps.push({ x: Math.random() * W, y: Math.random() * H, vx: 0, vy: 0, tx: 0, ty: 0, red: Math.random() < .14, dup: false });
