@@ -334,12 +334,25 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
 .wx-wrap{position:relative;display:inline-flex}
 .wx-wrap .tip{position:absolute;left:50%;bottom:calc(100% + 10px);translate:-50% 4px;white-space:nowrap;background:var(--paper);color:var(--ink);font-size:12px;padding:5px 10px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .25s,translate .25s}
 .wx-wrap.done .tip{opacity:1;translate:-50% 0}
+/* 悬停（手机上点开）弹出二维码 */
+.wx-wrap .qr{position:absolute;width:204px;box-sizing:border-box;left:50%;bottom:calc(100% + 14px);translate:-50% 8px;z-index:30;background:#fff;border-radius:12px;padding:12px 12px 10px;box-shadow:0 24px 48px -16px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s,translate .3s var(--ease);text-align:center}
+.wx-wrap .qr::after{content:"";position:absolute;left:50%;top:100%;translate:-50% 0;border:8px solid transparent;border-top-color:#fff}
+.wx-wrap .qr img{display:block;width:180px;height:180px;max-width:none}
+.wx-wrap .qr em{display:block;font-style:normal;font-size:12px;color:#555;margin-top:6px}
+@media (hover:hover){.wx-wrap:hover .qr{opacity:1;translate:-50% 0}}
+.wx-wrap.qr-on .qr{opacity:1;translate:-50% 0}
+.wx-wrap.done .tip{bottom:calc(100% + 250px)}
+.wx-wrap.qr-on .tip{display:none}
+.wx-wrap.qr-on .qr{bottom:auto;top:calc(100% + 14px)}
+.wx-wrap.qr-on .qr::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:#fff}
 .more.btn{border-color:#4a433a;color:var(--dark-mute);margin-top:22px;padding:10px 18px;font-size:12px}
 .more.btn:hover{color:var(--paper)}
 .pager button{border-radius:999px!important;transition:background .25s,color .25s,border-color .25s}
 .pager button:not(:disabled):hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .card{transition-delay:var(--d,0s)}
 .card.rv.in:hover{transform:translateY(-3px);transition-delay:0s}
+@media (max-width:1000px){.contact .c-top,.contact .how{grid-template-columns:1fr}}
+.contact .c-top{z-index:3}   /* 二维码弹层要压过下面的技术栈 */
 </style>
 </head>
 <body class="cur">
@@ -437,7 +450,7 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
   <div class="links">
     <a class="btn up mag" href="https://github.com/bmdy6">GitHub <i class="ar">↗</i></a>
     <a class="btn up mag" href="https://plan.xiaoliang.tech/reader/">知识书房 <i class="ar">↗</i></a>
-    <span class="wx-wrap"><button class="btn wx" id="wx" type="button" data-id="bmdyxl" aria-label="复制微信号 bmdyxl">微信 <b>bmdyxl</b> <svg class="ar" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><span class="tip" id="wxTip" role="status"></span></span>
+    <span class="wx-wrap"><button class="btn wx" id="wx" type="button" data-id="bmdyxl" aria-label="复制微信号 bmdyxl">微信 <b>bmdyxl</b> <svg class="ar" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><span class="tip" id="wxTip" role="status"></span><span class="qr" aria-hidden="true"><img src="img/wechat-qr.png" width="180" height="180" alt="" loading="lazy"><em>微信扫一扫，加我好友</em></span></span>
   </div>
   </div>
   <div class="c-stage" aria-hidden="true"></div>
@@ -881,7 +894,10 @@ $('wx').addEventListener('click', async () => {
   }
   tip.textContent = done ? '已复制微信号，去微信搜索添加' : '微信号：' + id;
   b.classList.add('done'); clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('done'), 2200);
+  if (!matchMedia('(hover: hover)').matches) { b.classList.toggle('qr-on'); b.querySelector('.qr em').textContent = done ? '已复制微信号 · 也可扫码' : '微信扫一扫，加我好友'; }   // 手机：点一下同时显示二维码，再点收起
 });
+
+document.addEventListener('click', e => { if (!e.target.closest('.wx-wrap')) $('wx').parentElement.classList.remove('qr-on'); });
 
 /* 磁吸按钮 */
 if (fine && !reduce) {
