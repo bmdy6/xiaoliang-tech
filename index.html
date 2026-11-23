@@ -172,15 +172,24 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .ch li::before{content:counter(c,decimal-leading-zero);font-family:var(--latin);color:var(--red);font-size:14px;padding-top:2px}
 .ch li a:hover{color:var(--red)}
 .pager{position:absolute;left:44px;right:44px;bottom:22px;display:flex;justify-content:space-between;align-items:center;color:var(--mute)}
-.pager button{font:inherit;background:none;border:1px solid var(--rule);padding:6px 12px;border-radius:3px;color:var(--ink)}
+.pager{z-index:2}
+.pager button{font:inherit;background:none;border:1px solid var(--rule);padding:9px 16px;border-radius:3px;color:var(--ink);cursor:pointer;position:relative}
+.pager button::after{content:"";position:absolute;inset:-8px}   /* 点击范围比看到的大一圈 */
 .pager button:disabled{opacity:.35}
-.leaf{position:absolute;left:50%;top:0;width:50%;height:100%;transform-origin:0 50%;transform-style:preserve-3d;transition:transform .7s var(--ease);z-index:5;pointer-events:none;visibility:hidden}
-.leaf.flipping{visibility:visible}
+.leaf{position:absolute;left:50%;top:0;width:50%;height:100%;transform-origin:0 50%;transform-style:preserve-3d;transition:transform .7s var(--ease);z-index:5;pointer-events:none;display:none}
+.leaf.flipping{display:block}
+.leaf *{pointer-events:none}
+.cover-mini{pointer-events:none}
+.spread{z-index:6}
 .leaf>div{position:absolute;inset:0;background:var(--surface);backface-visibility:hidden;border-radius:0 8px 8px 0}
 .leaf>div.back{transform:rotateY(180deg);border-radius:8px 0 0 8px;background:#F1ECE2}
 .leaf.turn{transform:rotateY(-180deg)}
-.closeb{position:absolute;right:-6px;top:-44px;background:none;border:0;color:var(--paper);font-family:var(--mono);font-size:12px;letter-spacing:.08em;opacity:0;transition:opacity .3s}
-.reader.shown .closeb{opacity:1}
+.closeb{position:absolute;right:16px;top:14px;z-index:20;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--rule);color:var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.08em;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s,background .25s,border-color .25s}
+.closeb:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+body:has(.reader.open) header{opacity:0;pointer-events:none}
+header{transition:opacity .3s}
+.closeb::after{content:"";position:absolute;inset:-8px}
+.reader.shown .closeb{opacity:1;pointer-events:auto}
 
 /* ---------- 文章：安静的阅读（Patricia） ---------- */
 .writing{background:var(--surface);position:relative;z-index:6;padding:14vh var(--gut)}
@@ -680,18 +689,21 @@ function renderPages(){
   rp.innerHTML = `<span class="mono" style="color:var(--mute)">目录</span>
     <ol class="ch" style="--start:${page*PER}">${list}</ol>
     <div class="pager mono"><button id="prev" ${page===0?'disabled':''}>← 上一页</button><span>${page+1} / ${pages}</span><button id="next" ${page>=pages-1?'disabled':''}>下一页 →</button></div>`;
-  $('prev').onclick = () => flip(-1); $('next').onclick = () => flip(1);
 }
+let turning = false;
+rp.addEventListener('click', e => { const bt = e.target.closest('#prev,#next'); if (!bt || bt.disabled) return; e.stopPropagation(); flip(bt.id === 'next' ? 1 : -1); });
 function flip(d){
+  if (turning) return;
   const pages = Math.ceil(books[cur][4].length/PER), np = page + d;
   if (np < 0 || np >= pages) return;
   if (reduce || innerWidth < 860) { page = np; renderPages(); return; }
+  turning = true;
   leaf.style.transition = 'none';
   leaf.classList.toggle('turn', d < 0); leaf.classList.add('flipping'); void leaf.offsetWidth;
   leaf.style.transition = '';
   leaf.classList.toggle('turn', d > 0);
   setTimeout(() => { page = np; renderPages(); }, 350);
-  setTimeout(() => leaf.classList.remove('flipping'), 720);
+  setTimeout(() => { leaf.classList.remove('flipping'); turning = false; }, 720);
 }
 function flipFrom(el){
   const a = el.getBoundingClientRect(), b = book.getBoundingClientRect();
@@ -716,7 +728,7 @@ function closeBook(){
     setTimeout(() => { fromEl.style.visibility = ''; reader.setAttribute('aria-hidden','true'); cur = null; lenis && lenis.start(); }, reduce ? 0 : 550);
   }, reduce ? 0 : 200);
 }
-$('closeb').onclick = closeBook;
+$('closeb').addEventListener('click', e => { e.stopPropagation(); closeBook(); });
 reader.addEventListener('click', e => { if (e.target === reader) closeBook(); });
 addEventListener('keydown', e => { if (cur === null) return; if (e.key === 'Escape') closeBook(); if (e.key === 'ArrowRight') flip(1); if (e.key === 'ArrowLeft') flip(-1); });
 
