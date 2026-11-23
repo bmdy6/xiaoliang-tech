@@ -82,14 +82,15 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .scroll-hint{position:absolute;left:var(--gut);bottom:7vh;z-index:4}
 
 
-/* ---------- 弧形幕布：下一节带弧形上沿盖上来，上一节缩小变暗 ---------- */
-:root{--lap:22vh}
-.curtain{margin-top:calc(var(--lap) * -1);border-top-left-radius:50% var(--arc,0px);border-top-right-radius:50% var(--arc,0px)}
-.hero-stage::after,.work::after{content:"";position:absolute;inset:0;background:#0b0a08;opacity:calc(var(--dim,0) * .55);pointer-events:none;z-index:40}
-.hero-stage{transform-origin:50% 100%}
+/* ---------- 像素块转场：独立一条，铺满后紧接下一节标题 ---------- */
+.pixels{position:relative;height:26vh;pointer-events:none;z-index:5;background:var(--paper)}
+.pixels.to-paper{background:var(--dark)}
+.pixels .grid{height:100%;display:grid}
+.pixels .grid i{background:var(--dark);opacity:0;transition:opacity .12s linear}
+.pixels.to-paper .grid i{background:var(--paper)}
 
 /* ---------- 作品：路标（Hiroto） ---------- */
-.work{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:calc(12vh + var(--lap)) var(--gut) 14vh;overflow-x:clip}
+.work{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:5vh var(--gut) 14vh;overflow-x:clip}
 .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:6vh}
 .sec-head .num{font-family:var(--latin);font-size:15px;color:var(--red)}
 .sec-head h2{font-family:var(--serif);font-weight:900;font-size:clamp(40px,6vw,84px);line-height:1}
@@ -137,7 +138,7 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .more:hover{color:var(--paper);border-color:var(--red)}
 
 /* ---------- 书房：可拖动的笔记本（Jacob） ---------- */
-.study{background:var(--paper);position:relative;z-index:7;padding:calc(14vh + var(--lap)) var(--gut) 10vh}
+.study{background:var(--paper);position:relative;z-index:6;padding:6vh var(--gut) 10vh}
 .study .sec-head p{color:var(--mute)}
 .desk{position:relative;height:640px;background:var(--tint);border-radius:10px;overflow:hidden;background-image:radial-gradient(rgba(27,25,21,.09) 1px,transparent 1.2px);background-size:22px 22px;touch-action:none}
 .desk-note{position:absolute;left:22px;bottom:18px;color:var(--mute)}
@@ -359,7 +360,8 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
 </section>
 
 <!-- 作品 -->
-<section class="work curtain" id="work">
+<div class="pixels" data-to="dark"><div class="grid"></div></div>
+<section class="work" id="work">
   <div class="sec-head rv">
     <span class="num">01</span><h2>作品</h2>
     <p>都是我独立设计开发的，大部分已开源。转动路标，挑一个方向看。</p>
@@ -386,7 +388,8 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
 </section>
 
 <!-- 书房 -->
-<section class="study curtain" id="study">
+<div class="pixels to-paper" data-to="paper"><div class="grid"></div></div>
+<section class="study" id="study">
   <div class="sec-head rv">
     <span class="num">02</span><h2>书房</h2>
     <p>做项目时学到的东西都写成了书。笔记本可以拖着摆，点一下打开。</p>
@@ -552,15 +555,25 @@ if (fine && !reduce) {
   }, { passive: true });
 }
 
-/* ---------- 弧形幕布 ---------- */
-const curtains = [...document.querySelectorAll('.curtain')].map(el => ({ el, prev: el.previousElementSibling.classList.contains('hero') ? el.previousElementSibling.querySelector('.hero-stage') : el.previousElementSibling }));
-function curtainScroll(){
-  for (const c of curtains) {
-    const top = c.el.getBoundingClientRect().top;
-    const p = Math.min(1, Math.max(0, (innerHeight - top) / (innerHeight * .85)));
-    c.el.style.setProperty('--arc', `${((1 - p) * Math.min(260, innerHeight * .26)).toFixed(1)}px`);
-    c.prev.style.setProperty('--dim', p.toFixed(3));
-    if (c.prev.classList.contains('hero-stage')) c.prev.style.scale = (1 - p * .06).toFixed(4);
+
+/* ---------- 像素块转场 ---------- */
+const pixelBlocks = [...document.querySelectorAll('.pixels')].map(el => {
+  const g = el.querySelector('.grid'), cols = innerWidth < 860 ? 10 : 24;
+  const rows = Math.max(3, Math.round(el.offsetHeight / (innerWidth / cols)));   // 方块尽量是正方形
+  g.style.gridTemplateColumns = `repeat(${cols},1fr)`; g.style.gridTemplateRows = `repeat(${rows},1fr)`;
+  const cells = [];
+  for (let i = 0; i < cols*rows; i++) {
+    const c = document.createElement('i'); g.appendChild(c);
+    cells.push({c, th: (Math.floor(i/cols)/rows)*.6 + Math.random()*.4});   // 从上往下，带随机
+  }
+  return {el, cells};
+});
+function pixelScroll(){
+  for (const b of pixelBlocks) {
+    const r = b.el.getBoundingClientRect();
+    // 方块条进屏开始铺，上沿到屏幕 35% 处铺满，这时下一节标题已经在下面露出来
+    const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight * .65)));
+    for (const x of b.cells) x.c.style.opacity = p > x.th ? 1 : 0;
   }
 }
 
@@ -718,7 +731,7 @@ if (fine && !reduce) {
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
 document.querySelectorAll('.rv').forEach(el => io.observe(el));
 const bar = $('progress');
-function onScroll(){ heroScroll(); curtainScroll(); bar.style.transform = `scaleX(${scrollY / (document.documentElement.scrollHeight - innerHeight)})`; }
+function onScroll(){ heroScroll(); pixelScroll(); bar.style.transform = `scaleX(${scrollY / (document.documentElement.scrollHeight - innerHeight)})`; }
 addEventListener('scroll', onScroll, {passive:true}); addEventListener('resize', onScroll); onScroll();
 requestAnimationFrame(() => setTimeout(() => hero.classList.add('ready'), 80));
 
