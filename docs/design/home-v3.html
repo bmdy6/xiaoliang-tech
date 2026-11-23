@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>肖 · xiaoliang.tech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;900&display=swap">
+<style>
+:root{
+  --paper:#F3EFE6; --surface:#FBF8F2; --tint:#EAE3D5; --ink:#1B1915; --mute:#6B6357; --rule:#D8D0C0;
+  --red:#BF3A21; --dark:#1C1916; --dark-2:#26221D; --dark-mute:#A39A8A;
+  --serif:"Noto Serif SC","Source Han Serif SC",serif;
+  --sans:"Noto Sans SC","PingFang SC",system-ui,sans-serif;
+  --latin:"Fraunces",var(--serif);
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --gut:clamp(16px,4vw,56px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+@media (pointer:fine){body.cur,body.cur a,body.cur button{cursor:none}}
+
+/* ---------- 光标：十字线 + 像素拖影（Bogdan） ---------- */
+#trail{position:fixed;inset:0;pointer-events:none;z-index:60}
+#cross{position:fixed;left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:none;z-index:61;transition:width .25s var(--ease),height .25s var(--ease),margin .25s var(--ease);mix-blend-mode:difference}
+#cross::before,#cross::after{content:"";position:absolute;background:#F3EFE6}
+#cross::before{left:50%;top:0;bottom:0;width:1px}
+#cross::after{top:50%;left:0;right:0;height:1px}
+#cross.big{width:56px;height:56px;margin:-28px 0 0 -28px}
+@media (pointer:coarse){#cross,#trail{display:none}}
+
+/* ---------- 顶栏 ---------- */
+header{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gut);mix-blend-mode:difference;color:#F3EFE6}
+header .logo{font-family:var(--serif);font-weight:900;font-size:20px}
+header nav{display:flex;gap:28px}
+header nav a{font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+header nav a:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* ---------- 首屏：大字视差 + 固定视觉中心 ---------- */
+.hero{position:relative;height:190vh}
+.hero-stage{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;padding-top:max(88px,11vh)}
+.line{font-family:var(--serif);font-weight:900;font-size:clamp(60px,min(12vw,19vh),210px);line-height:1;white-space:nowrap;letter-spacing:-.02em;will-change:transform}
+.line.l1{padding-left:6vw}
+.line.l2{padding-left:22vw;color:transparent;-webkit-text-stroke:1.5px var(--ink);position:relative;z-index:1}
+.line.l3{padding-left:2vw;position:relative;z-index:3}
+.line .red{color:var(--red)}
+.seal{position:absolute;left:50%;top:42%;width:clamp(170px,22vw,320px);aspect-ratio:1;translate:-50% -50%;z-index:2;border-radius:50%;background:var(--red);display:grid;place-items:center;color:var(--paper);font-family:var(--serif);font-weight:900;font-size:clamp(84px,11vw,160px);box-shadow:0 30px 60px -30px rgba(120,30,10,.45);will-change:transform}
+.seal small{position:absolute;bottom:18%;font-family:var(--mono);font-size:11px;letter-spacing:.2em;font-weight:400}
+.tag{position:absolute;font-family:var(--mono);font-size:12px;letter-spacing:.06em;background:var(--ink);color:var(--paper);padding:6px 10px;border-radius:2px;z-index:4}
+.tag.t1{left:var(--gut);bottom:12vh}
+.tag.t2{right:var(--gut);top:16vh;background:var(--red)}
+.hero-intro{position:absolute;right:var(--gut);bottom:7vh;max-width:380px;z-index:4;font-size:15px;color:var(--mute)}
+.hero-intro b{color:var(--ink);font-weight:500}
+.stats{display:flex;gap:22px;margin-top:14px}
+.stats div{font-family:var(--latin);font-size:30px;font-weight:600;color:var(--ink);line-height:1}
+.stats span{display:block;font-family:var(--sans);font-size:12px;color:var(--mute);margin-top:4px;font-weight:400}
+.scroll-hint{position:absolute;left:var(--gut);bottom:7vh;z-index:4}
+
+/* ---------- 像素块转场 ---------- */
+.pixels{position:relative;height:55vh;pointer-events:none;z-index:5;background:var(--paper)}
+.pixels.to-paper{background:var(--dark)}
+.pixels .grid{height:100%;display:grid}
+.pixels .grid i{background:var(--dark);opacity:0;transition:opacity .12s linear}
+.pixels.to-paper .grid i{background:var(--paper)}
+
+/* ---------- 作品：路标（Hiroto） ---------- */
+.work{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:12vh var(--gut) 14vh;overflow-x:clip}
+.sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:6vh}
+.sec-head .num{font-family:var(--latin);font-size:15px;color:var(--red)}
+.sec-head h2{font-family:var(--serif);font-weight:900;font-size:clamp(40px,6vw,84px);line-height:1}
+.sec-head p{color:var(--dark-mute);font-size:15px;margin-left:auto;max-width:320px}
+.post-wrap{display:grid;grid-template-columns:minmax(300px,1fr) 1.15fr;gap:5vw;align-items:start}
+.post-col{position:sticky;top:10vh}
+.post-scene{height:600px;perspective:1100px;position:relative;touch-action:pan-y}
+.post{position:absolute;left:50%;top:0;bottom:0;width:0;transform-style:preserve-3d;will-change:transform}
+.pole{position:absolute;left:-7px;top:40px;bottom:0;width:14px;background:linear-gradient(90deg,#8d877c,#d9d3c6 45%,#7a7468);border-radius:7px}
+.mirror{position:absolute;left:-58px;top:0;width:116px;height:116px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#fff 0 6%,#E3DCCD 18%,#9C8F7B 62%,#4a4238 100%);border:6px solid var(--red);transform:translateZ(14px);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.mirror span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:rgba(27,25,21,.55);transform:scaleX(-1) scale(1.3);filter:blur(.3px)}
+.sign{position:absolute;left:0;height:62px;width:250px;transform-origin:0 50%;transform-style:preserve-3d;display:flex;align-items:center;gap:12px;padding:0 30px 0 22px;font-family:var(--serif);font-weight:900;font-size:24px;color:var(--ink);background:var(--paper);clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%);transition:filter .2s,background .2s;backface-visibility:visible}
+.sign.left{clip-path:polygon(14% 0,100% 0,100% 100%,14% 100%,0 50%);padding:0 22px 0 44px;transform-origin:100% 50%;left:-250px;justify-content:flex-end}
+.sign small{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--mute)}
+.sign:hover,.sign.on{background:var(--red);color:var(--paper)}
+.sign:hover small,.sign.on small{color:#f6d8cf}
+.sign.blue{background:#2E5AAC;color:var(--paper)} .sign.blue small{color:#c9d6f0}
+.lamp{position:absolute;left:-46px;top:466px;width:34px;height:96px;background:#2a2622;border-radius:8px;transform:translateZ(10px);display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:6px 0}
+.lamp i{width:20px;height:20px;border-radius:50%;background:#3b3530;transition:background .3s,box-shadow .3s}
+.lamp i.r.on{background:#E2563A;box-shadow:0 0 14px #E2563A}
+.lamp i.y.on{background:#E8B33B;box-shadow:0 0 14px #E8B33B}
+.lamp i.g.on{background:#5FB26A;box-shadow:0 0 14px #5FB26A}
+.post-hint{position:absolute;left:0;bottom:0;color:var(--dark-mute)}
+
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.card{background:var(--dark-2);border:1px solid #3a342d;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;transition:transform .35s var(--ease),opacity .35s,border-color .2s}
+.card:hover{border-color:var(--red);transform:translateY(-3px)}
+.card .img{aspect-ratio:16/9;background:#0f0e0c;overflow:hidden}
+.card .img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.card:hover .img img{transform:scale(1.04)}
+.card .body{padding:14px 16px 16px}
+.card .kind{color:var(--red)}
+.card h3{font-family:var(--serif);font-size:19px;margin:4px 0 4px}
+.card p{font-size:13.5px;color:var(--dark-mute);line-height:1.55}
+.card.hide{display:none}
+.card .img.stat{display:flex;flex-direction:column;justify-content:center;padding:0 22px;background:var(--red);color:var(--paper)}
+.card .img.stat b{font-family:var(--latin);font-size:64px;line-height:1;font-weight:800}
+.card .img.stat span{font-size:15px;margin-top:6px}
+.card .img.stat em{font-style:normal;margin-top:14px;opacity:.75;font-size:11px}
+.more{display:inline-block;margin-top:22px;color:var(--dark-mute);border-bottom:1px solid #4a433a;padding-bottom:2px}
+.more:hover{color:var(--paper);border-color:var(--red)}
+
+/* ---------- 书房：可拖动的笔记本（Jacob） ---------- */
+.study{position:relative;z-index:6;padding:14vh var(--gut) 10vh}
+.study .sec-head p{color:var(--mute)}
+.desk{position:relative;height:640px;background:var(--tint);border-radius:10px;overflow:hidden;background-image:radial-gradient(rgba(27,25,21,.09) 1px,transparent 1.2px);background-size:22px 22px;touch-action:none}
+.desk-note{position:absolute;left:22px;bottom:18px;color:var(--mute)}
+.nb{position:absolute;width:150px;height:200px;border-radius:4px 10px 10px 4px;padding:18px 16px 16px 24px;display:flex;flex-direction:column;justify-content:space-between;user-select:none;-webkit-user-select:none;box-shadow:0 1px 0 rgba(0,0,0,.08),6px 10px 22px -10px rgba(40,30,15,.45);transition:box-shadow .2s;will-change:transform}
+.nb::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.18)}
+.nb::after{content:"";position:absolute;right:12px;top:-4px;width:12px;height:44px;background:var(--red);clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%);opacity:.9}
+.nb.drag{box-shadow:0 1px 0 rgba(0,0,0,.08),14px 24px 36px -14px rgba(40,30,15,.55);z-index:20}
+.nb h4{font-family:var(--serif);font-weight:900;font-size:19px;line-height:1.25;padding-right:26px}
+.nb .meta{font-family:var(--mono);font-size:10.5px;opacity:.75;letter-spacing:.05em}
+
+/* 打开的书 */
+.reader{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(27,25,21,0);pointer-events:none;transition:background .45s}
+.reader.open{background:rgba(27,25,21,.55);pointer-events:auto}
+.reader:not(.open) .book{visibility:hidden}
+.book{position:relative;width:min(920px,92vw);height:min(580px,80vh);transform-origin:0 0;perspective:2200px}
+.spread{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;opacity:0;transition:opacity .25s}
+.reader.shown .spread{opacity:1}
+.page{background:var(--surface);padding:44px 44px 36px;position:relative;overflow:hidden}
+.page.lp{border-radius:8px 0 0 8px;box-shadow:inset -18px 0 30px -24px rgba(0,0,0,.35)}
+.page.rp{border-radius:0 8px 8px 0;box-shadow:inset 18px 0 30px -24px rgba(0,0,0,.35)}
+.cover-mini{position:absolute;inset:0;border-radius:4px 10px 10px 4px}
+.lp h3{font-family:var(--serif);font-weight:900;font-size:clamp(28px,3.4vw,42px);line-height:1.15;margin:12px 0 16px}
+.lp p{color:var(--mute);font-size:14.5px}
+.lp .go{display:inline-block;margin-top:26px;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;font-size:14px}
+.lp .go:hover{background:var(--red)}
+.ch{list-style:none;counter-reset:c var(--start,0)}
+.ch li{counter-increment:c;border-bottom:1px solid var(--rule);padding:13px 0;display:flex;gap:14px;font-family:var(--serif);font-size:16px}
+.ch li::before{content:counter(c,decimal-leading-zero);font-family:var(--latin);color:var(--red);font-size:14px;padding-top:2px}
+.ch li a:hover{color:var(--red)}
+.pager{position:absolute;left:44px;right:44px;bottom:22px;display:flex;justify-content:space-between;align-items:center;color:var(--mute)}
+.pager button{font:inherit;background:none;border:1px solid var(--rule);padding:6px 12px;border-radius:3px;color:var(--ink)}
+.pager button:disabled{opacity:.35}
+.leaf{position:absolute;left:50%;top:0;width:50%;height:100%;transform-origin:0 50%;transform-style:preserve-3d;transition:transform .7s var(--ease);z-index:5;pointer-events:none;visibility:hidden}
+.leaf.flipping{visibility:visible}
+.leaf>div{position:absolute;inset:0;background:var(--surface);backface-visibility:hidden;border-radius:0 8px 8px 0}
+.leaf>div.back{transform:rotateY(180deg);border-radius:8px 0 0 8px;background:#F1ECE2}
+.leaf.turn{transform:rotateY(-180deg)}
+.closeb{position:absolute;right:-6px;top:-44px;background:none;border:0;color:var(--paper);font-family:var(--mono);font-size:12px;letter-spacing:.08em;opacity:0;transition:opacity .3s}
+.reader.shown .closeb{opacity:1}
+
+/* ---------- 文章：安静的阅读（Patricia） ---------- */
+.writing{background:var(--surface);position:relative;z-index:6;padding:14vh var(--gut)}
+.col{max-width:680px;margin:0 auto}
+.writing h2{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4vw,44px);margin:6px 0 10px}
+.writing .lead{color:var(--mute);font-size:16px;margin-bottom:40px}
+.posts{list-style:none;border-top:1px solid var(--rule)}
+.posts li{border-bottom:1px solid var(--rule)}
+.posts a{display:grid;grid-template-columns:1fr auto;gap:20px;padding:20px 0;align-items:baseline}
+.posts .t{font-family:var(--serif);font-size:19px;transition:color .2s}
+.posts .b{color:var(--mute);font-size:13px;white-space:nowrap}
+.posts a:hover .t{color:var(--red)}
+
+/* ---------- 联系 ---------- */
+.contact{background:var(--dark);color:var(--paper);position:relative;z-index:6;padding:16vh var(--gut) 6vh}
+.contact h2{font-family:var(--serif);font-weight:900;font-size:clamp(44px,8vw,120px);line-height:1.05}
+.contact h2 .red{color:var(--red)}
+.contact .links{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px}
+.contact .links a{border:1px solid #4a433a;padding:12px 18px;border-radius:3px;font-size:15px}
+.contact .links a:hover{background:var(--red);border-color:var(--red)}
+.contact .how{max-width:560px;color:var(--dark-mute);margin-top:60px;font-size:14.5px}
+.contact .how b{color:var(--paper);font-weight:500}
+.contact footer{margin-top:12vh;display:flex;justify-content:space-between;color:var(--dark-mute);border-top:1px solid #3a342d;padding-top:18px;flex-wrap:wrap;gap:10px}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* ---------- 手机 ---------- */
+@media (max-width:860px){
+  header nav{gap:16px}
+  .hero{height:150vh}
+  .line.l2{padding-left:8vw}
+  .hero-intro{left:var(--gut);right:var(--gut);max-width:none;bottom:12vh}
+  .tag.t1{display:none}
+  .line{font-size:15.5vw}
+  .tag.t2{display:none}
+  .seal{top:47%;width:150px;font-size:76px}
+  .seal small{font-size:9px}
+  .post-col{position:static}
+  .post{scale:.82}
+  .post-wrap{grid-template-columns:1fr}
+  .post-scene{height:520px;max-width:420px;width:100%;margin:0 auto}
+  .cards{grid-template-columns:1fr}
+  .sec-head{flex-wrap:wrap}
+  .sec-head p{margin-left:0}
+  .desk{height:auto;padding:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;touch-action:auto}
+  .nb{position:relative;width:auto;height:180px;left:auto!important;top:auto!important;transform:none!important}
+  .desk-note{position:static;grid-column:1/-1}
+  .book{height:86vh}
+  .spread{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .page{padding:26px 22px}
+  .page.lp{border-radius:8px 8px 0 0}
+  .page.rp{border-radius:0 0 8px 8px;padding-bottom:70px}
+  .pager{left:22px;right:22px}
+  .leaf{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation:none!important}
+}
+</style>
+</head>
+<body class="cur">
+<canvas id="trail"></canvas>
+<div id="cross"></div>
+
+<header>
+  <a class="logo" href="#top">肖</a>
+  <nav><a href="#work">作品</a><a href="#study">书房</a><a href="#writing">文章</a><a href="#contact">联系</a></nav>
+</header>
+
+<!-- 首屏 -->
+<section class="hero" id="top">
+  <div class="hero-stage">
+    <div class="line l1" data-speed="-0.35">给 AI 造工具，</div>
+    <div class="line l2" data-speed="0.45">TOOLS FOR AI</div>
+    <div class="line l3" data-speed="-0.2">也让 AI <span class="red">一起造。</span></div>
+    <div class="seal" id="seal">肖<small>XIAOLIANG.TECH</small></div>
+        <span class="tag t2">在找 AI 应用开发的机会</span>
+    <div class="hero-intro">
+      <span class="mono" style="display:block;color:var(--red);margin-bottom:8px">AI 应用开发 · MCP · Agent · macOS</span>
+      我是肖亮，<b>AI 应用开发工程师</b>，约 1 年经验。做过 RAG 知识库、Agent 工作流和长期记忆，也把想法做成别人能直接装、直接用的产品。
+      <div class="stats">
+        <div>30<span>个公开仓库</span></div>
+        <div>6<span>个 MCP 服务</span></div>
+        <div>61<span>章技术笔记</span></div>
+      </div>
+    </div>
+    <span class="scroll-hint mono">向下滚动</span>
+  </div>
+</section>
+<div class="pixels" data-to="dark"><div class="grid"></div></div>
+
+<!-- 作品 -->
+<section class="work" id="work">
+  <div class="sec-head rv">
+    <span class="num">01</span><h2>作品</h2>
+    <p>都是我独立设计开发的，大部分已开源。转动路标，挑一个方向看。</p>
+  </div>
+  <div class="post-wrap">
+    <div class="post-col"><div class="post-scene rv" id="scene">
+      <div class="post" id="post">
+        <div class="pole"></div>
+        <div class="mirror"><span>xiaoliang.tech</span></div>
+        <a class="sign" data-k="应用" style="top:150px;--ry:-28deg">应用 <small>3</small></a>
+        <a class="sign left" data-k="MCP" style="top:226px;--ry:22deg">MCP <small>4</small></a>
+        <a class="sign" data-k="Agent" style="top:302px;--ry:-12deg">Agent <small>3</small></a>
+        <a class="sign left blue" data-k="技能" style="top:378px;--ry:34deg">技能 <small>2</small></a>
+        <a class="sign" data-k="全部" style="top:454px;--ry:8deg">全部 <small>12</small></a>
+        <div class="lamp" id="lamp"><i class="r"></i><i class="y"></i><i class="g on"></i></div>
+      </div>
+      <span class="post-hint mono">拖动或移动鼠标转动路标</span>
+    </div></div>
+    <div>
+      <div class="cards" id="cards"></div>
+      <a class="more mono" href="https://github.com/bmdy6?tab=repositories">全部 30 个仓库 →</a>
+    </div>
+  </div>
+</section>
+<div class="pixels to-paper" data-to="paper"><div class="grid"></div></div>
+
+<!-- 书房 -->
+<section class="study" id="study">
+  <div class="sec-head rv">
+    <span class="num">02</span><h2>书房</h2>
+    <p>做项目时学到的东西都写成了书。笔记本可以拖着摆，点一下打开。</p>
+  </div>
+  <div class="desk rv" id="desk">
+    <span class="desk-note mono">8 本 · 每章带来源和核对日期</span>
+  </div>
+</section>
+
+<!-- 文章 -->
+<section class="writing" id="writing">
+  <div class="col">
+    <span class="mono" style="color:var(--red)">03 · 文章</span>
+    <h2>最近在写</h2>
+    <p class="lead">《AI Agent 学习》这本书的章节，按做项目时真实踩过的坑来写。</p>
+    <ul class="posts" id="posts"></ul>
+  </div>
+</section>
+
+<!-- 联系 -->
+<section class="contact" id="contact">
+  <h2>在找 AI 应用开发的机会，<br><span class="red">聊聊？</span></h2>
+  <div class="links">
+    <a href="https://github.com/bmdy6">GitHub ↗</a>
+    <a href="https://plan.xiaoliang.tech/reader/">知识书房 ↗</a>
+  </div>
+  <p class="how">技术栈：Python / FastAPI、LangGraph、MCP、RAG（混合检索 + Rerank）、Langfuse 评测追踪、React、Swift。<br><br>这些项目都是<b>一个人带两个 AI</b> 做的：我定需求、做最后验收，Claude 写 Issue、出设计、审代码，Codex 小轮开发。每个仓库都留着真实的 Issue 和 PR。</p>
+  <footer class="mono"><span>© 2026 XIAOLIANG.TECH</span><span>页面源码开源 · github.com/bmdy6/xiaoliang-tech</span></footer>
+</section>
+
+<!-- 打开的书 -->
+<div class="reader" id="reader" aria-hidden="true">
+  <div class="book" id="book">
+    <div class="cover-mini" id="coverMini"></div>
+    <button class="closeb" id="closeb">合上 ✕</button>
+    <div class="spread">
+      <div class="page lp" id="lp"></div>
+      <div class="page rp" id="rp"></div>
+    </div>
+    <div class="leaf" id="leaf"><div></div><div class="back"></div></div>
+  </div>
+</div>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(pointer: fine)').matches;
+const $ = id => document.getElementById(id);
+const IMG = '../../img/';
+const R = 'https://plan.xiaoliang.tech/reader/books/';
+
+/* ---------- 数据 ---------- */
+const works = [
+  ['job-agent 求职 Agent','Agent','MCP · 15 个工具 · 38 个测试','对接四个招聘平台，按简历给岗位评分、写招呼语，每句都回指简历原文。448 个岗位批量评分，0 失败。','','',],
+  ['StylePolish 润色','应用','macOS · Swift · v0.7.0','微信等输入框停笔就给润色建议，⌥Enter 采纳、不自动发送。本地规则和大模型双模式，常见错字学会后不再调模型。','sp-inline.webp','stylepolish'],
+  ['Visionary 生图网站','应用','React · FastAPI · 全栈','文生图和参考图生图。生成前先冻结积分，成功才扣、失败自动释放；有充值审核和管理后台。','vis-home.webp','visionary'],
+  ['精卫 jingwei','Agent','不依赖框架','从 ReAct 循环写起的通用 Agent：两层记忆，会话后自动复盘工具调用，把规则注入下次提示词。','jw.webp','jingwei'],
+  ['research-mcp','MCP','Python · 5 类来源','Agent 调一次就同时搜 GitHub、HN、B 站、掘金和全网，把代码讨论和视频字幕转成文字，回答附出处。','rm-hero.webp','research-mcp'],
+  ['knowledge-mcp','MCP','Markdown + Git','个人知识库，多个 Agent 同时写不互相覆盖。自建 40 题评测集，重排后 Recall@1 从 67.5% 到 80%。','km-hero.webp','knowledge-mcp'],
+  ['repo-tutor','Agent','代码库课程','把陌生代码库变成新人课程：Flask 示例 348/348 节点覆盖，0 无效引用。','rt-lesson.webp','repo-tutor'],
+  ['readme-from-code','技能','Agent 技能','按源码写 README，命令全部实跑，每句说法都能回到源码验证。','rfc.webp','skill-readme-from-code'],
+  ['mac-doctor-mcp','MCP','macOS','让 AI 检查内存和存储给出清理计划，你确认才执行，可回滚。','md-hero.webp','mac-doctor-mcp'],
+  ['footage-mcp','MCP','视频素材','给视频找免费素材，先抽帧看内容再下载，记录授权。','fm.webp','footage-mcp'],
+  ['知了 StudyBuddy','应用','微信日报','学习陪伴：孩子知道第一步做什么，家长在微信日报里看见学了什么。','sb-overview.webp','studybuddy'],
+  ['agent-skills','技能','13 个技能','提交前复核、写 Issue、任务交接，日常开发反复在用。','as.webp','agent-skills'],
+];
+const books = [
+  ['ai-agent','AI Agent 学习','#B8391F','#FBF0E4',['Agent 核心循环、任务目标与停止条件','意图路由、工具选择与失败降级','Tool、Skill、MCP 与执行安全','Prompt、模型调用与结果可信度','Context、Memory 与 RAG 检索','Agent 服务化、多入口与多 Agent 协作','Agent 可观测性、评估与真实验收','Agent 自进化、经验晋升与成本','源码阅读、DAG、Worker 与 Handler']],
+  ['engineering','系统架构与工程化','#2A2621','#E9E2D4',['模块边界、分层与架构设计','HTTP、FastAPI、WebSocket 与网关','数据库、事务、锁与数据模型','Redis、缓存与幂等','Python 异步、并发控制与任务执行','分布式、MQ、Outbox 与状态一致性','日志、指标、Trace 与故障排查','测试、CI/CD、代码审查与协作','Docker、Kubernetes、部署与发布恢复']],
+  ['llm-basics','大模型基础','#D9CFBA','#2A2621',['Token、向量与位置信息','Attention、QKV 与 Transformer','预训练、下一个 Token 与生成','从模型原理到真实场景','后训练、量化与部署']],
+  ['frontend','前端与交互设计','#55614F','#F1EEE2',['App 页面结构：先认识位置和名称','导航与信息架构：如何让人找得到','内容优先级：每个页面先选一个重点','页面交互：动作发生后应该显示什么','视觉设计：清楚、统一、有适当重点','移动端布局和前端实现边界','我先学什么、以后怎么复习']],
+  ['expression','个人表达','#E9E1CF','#2A2621',['把话说清楚','把复杂知识讲简单','接话：让对方愿意继续说','工作沟通：让别人能接着做','五分钟练习','博学与话题','英语主动输出','英语语音入口与验收','英语错题与练习记录']],
+  ['thinking','思考与研究方法','#3E3931','#E9E2D4',['定义问题','判断与论证','调研','五步工作法','最小实验与人生探索']],
+  ['research','调研与决策','#C7A57A','#2A2018',['AI 工具与研发提效','Agent 与模型选型','Research 检索与筛选','图片视频与数字人','工程架构选型','安全与合规','教育产品','商业与品牌','生活与硬件','决策回查']],
+  ['product-practice','个人产品实践','#8C8474','#FBF7EE',['个人工作台：把高频生活与工作集中起来','学习平台：智学伴 / 知了的长期产品方向','Media 与早期生图产品：一项能力，多种入口','Research 与 Video：信息先拿到，再变成有用判断','Opportunity：从 AI 想法到第一笔真实收益','项目认知包：AI 先理解再改代码','个人网站、原型与其他探索']],
+];
+const chURL = (slug,i) => `${R}${slug}/chapter-${String(i+1).padStart(2,'0')}/`;
+
+/* ---------- 光标 ---------- */
+if (fine && !reduce) {
+  const cv = $('trail'), ctx = cv.getContext('2d'), cross = $('cross');
+  let W, H, cells = [], last = null;
+  const S = 14;
+  const fit = () => { const d = Math.min(2, devicePixelRatio||1); W = innerWidth; H = innerHeight; cv.width = W*d; cv.height = H*d; ctx.setTransform(d,0,0,d,0,0); };
+  fit(); addEventListener('resize', fit);
+  addEventListener('pointermove', e => {
+    cross.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+    const k = Math.floor(e.clientX/S)+','+Math.floor(e.clientY/S);
+    if (k !== last) { last = k; cells.push({x:Math.floor(e.clientX/S)*S, y:Math.floor(e.clientY/S)*S, t:performance.now()}); }
+  }, {passive:true});
+  document.addEventListener('pointerover', e => cross.classList.toggle('big', !!e.target.closest('a,button,.nb,.sign')));
+  (function draw(now){
+    ctx.clearRect(0,0,W,H);
+    cells = cells.filter(c => now - c.t < 520);
+    for (const c of cells) { const a = 1 - (now - c.t)/520; ctx.fillStyle = `rgba(191,58,33,${a*.55})`; ctx.fillRect(c.x+1, c.y+1, S-2, S-2); }
+    requestAnimationFrame(draw);
+  })(performance.now());
+} else document.body.classList.remove('cur');
+
+/* ---------- 首屏视差 ---------- */
+const lines = [...document.querySelectorAll('.line')], seal = $('seal'), hero = document.querySelector('.hero');
+function heroScroll(){
+  const p = Math.min(1, Math.max(0, scrollY / (hero.offsetHeight - innerHeight)));
+  lines.forEach(l => l.style.transform = `translateX(${p * parseFloat(l.dataset.speed) * innerWidth}px)`);
+  seal.style.transform = `rotate(${p*-24}deg) scale(${1 - p*.18})`;
+}
+
+/* ---------- 像素块转场 ---------- */
+const pixelBlocks = [...document.querySelectorAll('.pixels')].map(el => {
+  const g = el.querySelector('.grid'), cols = innerWidth < 860 ? 8 : 16, rows = 9;
+  g.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  const cells = [];
+  for (let i = 0; i < cols*rows; i++) {
+    const c = document.createElement('i'); g.appendChild(c);
+    const r = Math.floor(i/cols);
+    cells.push({c, th: (r/rows)*.6 + Math.random()*.4});   // 从上往下，带随机
+  }
+  return {el, cells};
+});
+function pixelScroll(){
+  for (const b of pixelBlocks) {
+    const r = b.el.getBoundingClientRect();
+    const p = Math.min(1, Math.max(0, (innerHeight - r.top) / (r.height + innerHeight*.25)));
+    for (const x of b.cells) x.c.style.opacity = p > x.th ? 1 : 0;
+  }
+}
+
+/* ---------- 作品：路标 ---------- */
+const cards = $('cards');
+cards.innerHTML = works.map(([n,k,m,d,img,repo]) => `
+  <a class="card" data-k="${k}" ${repo ? `href="https://github.com/bmdy6/${repo}"` : 'aria-disabled="true"'}>
+    ${img ? `<div class="img"><img loading="lazy" src="${IMG}${img}" alt="${n} 截图"></div>` : `<div class="img stat"><b>448</b><span>个岗位批量评分 · 0 失败</span><em class="mono">仓库整理中，暂未公开</em></div>`}
+    <div class="body"><span class="kind mono">${k} · ${m}</span><h3>${n}</h3><p>${d}</p></div>
+  </a>`).join('');
+const post = $('post'), scene = $('scene'), signs = [...document.querySelectorAll('.sign')];
+let rot = 0, target = 0, dragX = null, dragRot = 0;
+signs.forEach(s => s.style.transform = `rotateY(${s.style.getPropertyValue('--ry')})`);
+function setKind(k){
+  signs.forEach(s => s.classList.toggle('on', s.dataset.k === k));
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('hide', k !== '全部' && c.dataset.k !== k));
+  const lamp = [...$('lamp').children]; lamp.forEach(i => i.classList.remove('on'));
+  lamp[{'应用':0,'MCP':1,'Agent':1,'技能':0,'全部':2}[k]].classList.add('on');
+}
+signs.forEach(s => s.addEventListener('click', e => { e.preventDefault(); if (Math.abs(target - dragRot) < 3 || dragX === null) setKind(s.dataset.k); }));
+setKind('全部');
+scene.addEventListener('pointermove', e => {
+  if (dragX !== null) { target = dragRot + (e.clientX - dragX) * .4; return; }
+  if (!fine) return;
+  const b = scene.getBoundingClientRect(); target = ((e.clientX - b.left)/b.width - .5) * 50;
+});
+scene.addEventListener('pointerdown', e => { dragX = e.clientX; dragRot = target; });
+addEventListener('pointerup', () => { dragX = null; });
+scene.addEventListener('pointerleave', () => { if (dragX === null) target = 0; });
+(function spin(t){
+  const idle = reduce ? 0 : Math.sin(t/2400) * 6;
+  rot += (target + idle - rot) * .08;
+  post.style.transform = `rotateY(${rot}deg) rotateX(4deg)`;
+  requestAnimationFrame(spin);
+})(0);
+
+/* ---------- 书房：拖动笔记本 ---------- */
+const desk = $('desk');
+const spots = [[6,8,-5],[24,4,3],[43,10,-2],[62,5,4],[80,9,-4],[14,52,2],[36,56,-3],[58,50,5]];
+const nbs = books.map((b,i) => {
+  const [slug,name,bg,fg,ch] = b, el = document.createElement('div');
+  el.className = 'nb'; el.style.background = bg; el.style.color = fg;
+  el.innerHTML = `<h4>${name}</h4><span class="meta">${ch.length} 章 · ${String(i+1).padStart(2,'0')}</span>`;
+  const [x,y,r] = spots[i]; el.style.left = x + '%'; el.style.top = y + '%';
+  el.dataset.r = r; el.style.transform = `rotate(${r}deg)`;
+  desk.appendChild(el);
+  let sx, sy, ox, oy, moved = false, z = 1;
+  el.addEventListener('pointerdown', e => {
+    if (innerWidth < 860) return;
+    el.setPointerCapture(e.pointerId); moved = false;
+    sx = e.clientX; sy = e.clientY; ox = el.offsetLeft; oy = el.offsetTop;
+    el.classList.add('drag'); el.style.zIndex = ++window.__z || (window.__z = 10);
+    el.style.transform = `rotate(0deg) scale(1.04)`;
+  });
+  el.addEventListener('pointermove', e => {
+    if (!el.classList.contains('drag')) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.hypot(dx,dy) > 5) moved = true;
+    const maxX = desk.clientWidth - el.offsetWidth, maxY = desk.clientHeight - el.offsetHeight;
+    el.style.left = Math.max(0, Math.min(maxX, ox + dx)) + 'px';
+    el.style.top = Math.max(0, Math.min(maxY, oy + dy)) + 'px';
+  });
+  el.addEventListener('pointerup', () => {
+    el.classList.remove('drag');
+    el.style.transform = `rotate(${el.dataset.r}deg)`;
+    if (!moved) openBook(i, el);
+  });
+  if (innerWidth < 860) el.addEventListener('click', () => openBook(i, el));
+  return el;
+});
+
+/* ---------- 打开的书：放大、翻页、合上 ---------- */
+const reader = $('reader'), book = $('book'), lp = $('lp'), rp = $('rp'), leaf = $('leaf'), coverMini = $('coverMini');
+let cur = null, page = 0, fromEl = null;
+const PER = 5;
+function renderPages(){
+  const [slug,name,bg,fg,ch] = books[cur], pages = Math.ceil(ch.length/PER);
+  lp.innerHTML = `<span class="mono" style="color:var(--red)">书房 · ${String(cur+1).padStart(2,'0')} / 08</span>
+    <h3>${name}</h3><p>共 ${ch.length} 章。每章写清楚来源和核对日期，做项目时遇到的问题都回填进来。</p>
+    <a class="go" href="${R}${slug}/">打开这本书 →</a>`;
+  const list = ch.slice(page*PER, page*PER+PER).map((t,j) => `<li><a href="${chURL(slug, page*PER+j)}">${t}</a></li>`).join('');
+  rp.innerHTML = `<span class="mono" style="color:var(--mute)">目录</span>
+    <ol class="ch" style="--start:${page*PER}">${list}</ol>
+    <div class="pager mono"><button id="prev" ${page===0?'disabled':''}>← 上一页</button><span>${page+1} / ${pages}</span><button id="next" ${page>=pages-1?'disabled':''}>下一页 →</button></div>`;
+  $('prev').onclick = () => flip(-1); $('next').onclick = () => flip(1);
+}
+function flip(d){
+  const pages = Math.ceil(books[cur][4].length/PER), np = page + d;
+  if (np < 0 || np >= pages) return;
+  if (reduce || innerWidth < 860) { page = np; renderPages(); return; }
+  leaf.style.transition = 'none';
+  leaf.classList.toggle('turn', d < 0); leaf.classList.add('flipping'); void leaf.offsetWidth;
+  leaf.style.transition = '';
+  leaf.classList.toggle('turn', d > 0);
+  setTimeout(() => { page = np; renderPages(); }, 350);
+  setTimeout(() => leaf.classList.remove('flipping'), 720);
+}
+function flipFrom(el){
+  const a = el.getBoundingClientRect(), b = book.getBoundingClientRect();
+  return `translate(${a.left-b.left}px,${a.top-b.top}px) scale(${a.width/b.width},${a.height/b.height})`;
+}
+function openBook(i, el){
+  cur = i; page = 0; fromEl = el; renderPages();
+  const [, , bg] = books[i]; coverMini.style.background = bg;
+  reader.setAttribute('aria-hidden','false'); reader.classList.add('open');
+  el.style.visibility = 'hidden';
+  book.style.transition = 'none'; book.style.transform = flipFrom(el); coverMini.style.opacity = 1;
+  void book.offsetWidth;
+  book.style.transition = reduce ? 'none' : 'transform .55s var(--ease)';
+  book.style.transform = 'none';
+  setTimeout(() => { reader.classList.add('shown'); coverMini.style.transition = 'opacity .25s'; coverMini.style.opacity = 0; }, reduce ? 0 : 420);
+}
+function closeBook(){
+  if (cur === null) return;
+  reader.classList.remove('shown'); coverMini.style.opacity = 1;
+  setTimeout(() => {
+    book.style.transform = flipFrom(fromEl); reader.classList.remove('open');
+    setTimeout(() => { fromEl.style.visibility = ''; reader.setAttribute('aria-hidden','true'); cur = null; }, reduce ? 0 : 550);
+  }, reduce ? 0 : 200);
+}
+$('closeb').onclick = closeBook;
+reader.addEventListener('click', e => { if (e.target === reader) closeBook(); });
+addEventListener('keydown', e => { if (cur === null) return; if (e.key === 'Escape') closeBook(); if (e.key === 'ArrowRight') flip(1); if (e.key === 'ArrowLeft') flip(-1); });
+
+/* ---------- 文章列表 ---------- */
+$('posts').innerHTML = books[0][4].slice(0,6).map((t,i) => `<li><a href="${chURL('ai-agent',i)}"><span class="t">${t}</span><span class="b mono">第 ${String(i+1).padStart(2,'0')} 章</span></a></li>`).join('');
+
+/* ---------- 滚动 ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+function onScroll(){ heroScroll(); pixelScroll(); }
+addEventListener('scroll', onScroll, {passive:true}); addEventListener('resize', onScroll); onScroll();
+</script>
+</body>
+</html>
