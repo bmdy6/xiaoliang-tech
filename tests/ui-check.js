@@ -30,7 +30,9 @@ async function realClick(p, locator) {   // 真实鼠标：移过去、按下、
 async function desktop(b) {
   const p = await b.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto(URL); await p.waitForTimeout(800);
+  await p.goto(URL); await p.waitForFunction(() => window.__blogLoaded, null, { timeout: 15000 }); await p.waitForTimeout(500);
+  const fromBlog = await p.evaluate(() => Object.keys(chLinks).length);
+  ok('书目从博客 books.json 读取', URL.startsWith('file:') || fromBlog > 0, URL.startsWith('file:') ? '本地文件跨域读不到，用兜底数据（线上再验）' : `${fromBlog} 本`);
 
   // 1. 顶部导航
   for (const id of ['work', 'study', 'writing', 'contact']) {
@@ -88,7 +90,7 @@ async function desktop(b) {
       for (let k = 1; k < total; k++) { await realClick(p, p.locator('#prev')); await p.waitForTimeout(850); }
       back = (await p.locator('.pager span').textContent()).trim().startsWith('1') && await p.locator('#prev').isDisabled();
       const go = await p.locator('#lp .go').getAttribute('href');
-      ok(`  「${name}」打开这本书链接`, /^https:\/\/plan\.xiaoliang\.tech\//.test(go), go);
+      ok(`  「${name}」打开这本书链接指向博客`, /^https:\/\/xiaoliang\.tech\/blog\/books\//.test(go), go);
     }
     ok(`书 ${i + 1}「${name}」打开 / 翻到第 ${total} 页 / 翻回 / 标题对`, open && fwd && back && title === name, `翻到=${pages}`);
     // 合上：三种方式轮流测
@@ -122,13 +124,13 @@ async function desktop(b) {
   for (let i = 0; i < posts; i++) {
     const a = p.locator('#posts a').nth(i), bb = await a.boundingBox();
     const inside = await p.evaluate(([x, y, i]) => document.querySelectorAll('#posts a')[i].contains(document.elementFromPoint(x, y)), [bb.x + 60, bb.y + bb.height / 2, i]);
-    if (!inside || !/^https:\/\//.test(await a.getAttribute('href'))) postBad++;
+    if (!inside || !/^https:\/\/xiaoliang\.tech\/blog\//.test(await a.getAttribute('href'))) postBad++;
   }
   ok(`文章 ${posts} 条都能点到、链接正确`, posts > 0 && postBad === 0);
 
   // 7. 联系区按钮
   await goTo(p, '#contact', 0);
-  for (const txt of ['GitHub', '知识书房']) {
+  for (const txt of ['GitHub', '技术博客']) {
     const a = p.locator('.contact .links a', { hasText: txt });
     const bb = await a.boundingBox();
     await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2, { steps: 8 }); await p.waitForTimeout(200);   // 磁吸会把按钮往鼠标拉

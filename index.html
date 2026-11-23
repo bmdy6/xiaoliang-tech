@@ -427,7 +427,7 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
     <p>做项目时学到的东西都写成了书。笔记本可以拖着摆，点一下打开。</p>
   </div>
   <div class="desk rv" id="desk">
-    <span class="desk-note mono">8 本 · 每章带来源和核对日期</span>
+    <span class="desk-note mono" id="deskNote">8 本 · 每章带来源和核对日期 · 全文在技术博客</span>
   </div>
 </section>
 
@@ -449,7 +449,7 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
   <h2>在找 AI 应用开发的机会，<br><span class="red">聊聊？</span></h2>
   <div class="links">
     <a class="btn up mag" href="https://github.com/bmdy6">GitHub <i class="ar">↗</i></a>
-    <a class="btn up mag" href="https://plan.xiaoliang.tech/reader/">知识书房 <i class="ar">↗</i></a>
+    <a class="btn up mag" href="https://xiaoliang.tech/blog/">技术博客 <i class="ar">↗</i></a>
     <span class="wx-wrap"><button class="btn wx" id="wx" type="button" data-id="bmdyxl" aria-label="复制微信号 bmdyxl">微信 <b>bmdyxl</b> <svg class="ar" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><span class="tip" id="wxTip" role="status"></span><span class="qr" aria-hidden="true"><img src="img/wechat-qr.png" width="180" height="180" alt="" loading="lazy"><em>微信扫一扫，加我好友</em></span></span>
   </div>
   </div>
@@ -489,7 +489,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = matchMedia('(pointer: fine)').matches;
 const $ = id => document.getElementById(id);
 const IMG = 'img/';
-const R = 'https://plan.xiaoliang.tech/reader/books/';
+const BLOG = 'https://xiaoliang.tech/blog/', R = BLOG + 'books/';
 
 /* ---------- 数据 ---------- */
 const works = [
@@ -506,7 +506,7 @@ const works = [
   ['知了 StudyBuddy','应用','微信日报','学习陪伴：孩子知道第一步做什么，家长在微信日报里看见学了什么。','sb-overview.webp','studybuddy'],
   ['agent-skills','技能','13 个技能','提交前复核、写 Issue、任务交接，日常开发反复在用。','as.webp','agent-skills'],
 ];
-const books = [
+let books = [   // 兜底数据；加载时用博客的 books.json 覆盖，只维护博客一份
   ['ai-agent','AI Agent 学习','#B8391F','#FBF0E4',['Agent 核心循环、任务目标与停止条件','意图路由、工具选择与失败降级','Tool、Skill、MCP 与执行安全','Prompt、模型调用与结果可信度','Context、Memory 与 RAG 检索','Agent 服务化、多入口与多 Agent 协作','Agent 可观测性、评估与真实验收','Agent 自进化、经验晋升与成本','源码阅读、DAG、Worker 与 Handler']],
   ['engineering','系统架构与工程化','#2A2621','#E9E2D4',['模块边界、分层与架构设计','HTTP、FastAPI、WebSocket 与网关','数据库、事务、锁与数据模型','Redis、缓存与幂等','Python 异步、并发控制与任务执行','分布式、MQ、Outbox 与状态一致性','日志、指标、Trace 与故障排查','测试、CI/CD、代码审查与协作','Docker、Kubernetes、部署与发布恢复']],
   ['llm-basics','大模型基础','#D9CFBA','#2A2621',['Token、向量与位置信息','Attention、QKV 与 Transformer','预训练、下一个 Token 与生成','从模型原理到真实场景','后训练、量化与部署']],
@@ -516,7 +516,8 @@ const books = [
   ['research','调研与决策','#C7A57A','#2A2018',['AI 工具与研发提效','Agent 与模型选型','Research 检索与筛选','图片视频与数字人','工程架构选型','安全与合规','教育产品','商业与品牌','生活与硬件','决策回查']],
   ['product-practice','个人产品实践','#8C8474','#FBF7EE',['个人工作台：把高频生活与工作集中起来','学习平台：智学伴 / 知了的长期产品方向','Media 与早期生图产品：一项能力，多种入口','Research 与 Video：信息先拿到，再变成有用判断','Opportunity：从 AI 想法到第一笔真实收益','项目认知包：AI 先理解再改代码','个人网站、原型与其他探索']],
 ];
-const chURL = (slug,i) => `${R}${slug}/chapter-${String(i+1).padStart(2,'0')}/`;
+const chLinks = {};   // 博客给的真实章节地址
+const chURL = (slug,i) => chLinks[slug]?.[i] || `${R}${slug}/chapter-${String(i+1).padStart(2,'0')}/`;
 
 /* ---------- 光标 ---------- */
 if (fine && !reduce) {
@@ -664,11 +665,17 @@ new IntersectionObserver(es => postVisible = es[0].isIntersecting).observe(scene
 /* ---------- 书房：拖动笔记本 ---------- */
 const desk = $('desk');
 const spots = [[6,8,-5],[24,4,3],[43,10,-2],[62,5,4],[80,9,-4],[14,52,2],[36,56,-3],[58,50,5]];
-const nbs = books.map((b,i) => {
+const palette = {};   // 每本书的封面颜色按 id 记住；博客新加的书轮流用这几种
+books.forEach(b => palette[b[0]] = [b[2], b[3]]);
+const extraColors = [['#B8391F','#FBF0E4'],['#2A2621','#E9E2D4'],['#55614F','#F1EEE2'],['#C7A57A','#2A2018'],['#8C8474','#FBF7EE']];
+function buildDesk(){
+desk.querySelectorAll('.nb').forEach(n => n.remove());
+$('deskNote').textContent = `${books.length} 本 · 每章带来源和核对日期 · 全文在技术博客`;
+books.map((b,i) => {
   const [slug,name,bg,fg,ch] = b, el = document.createElement('div');
   el.className = 'nb'; el.style.background = bg; el.style.color = fg;
   el.innerHTML = `<h4>${name}</h4><span class="meta">${ch.length} 章 · ${String(i+1).padStart(2,'0')}</span><i class="peel"></i>`;
-  const [x,y,r] = spots[i]; el.style.left = x + '%'; el.style.top = y + '%';
+  const [x,y,r] = spots[i] || [6 + (i * 19) % 76, 30 + (i % 2) * 30, (i % 2 ? 3 : -3)]; el.style.left = x + '%'; el.style.top = y + '%';
   el.dataset.r = r; el.style.transform = `rotate(${r}deg)`;
   desk.appendChild(el);
   let sx, sy, ox, oy, moved = false, z = 1;
@@ -695,6 +702,7 @@ const nbs = books.map((b,i) => {
   if (innerWidth < 860) el.addEventListener('click', () => openBook(i, el));
   return el;
 });
+}
 
 /* ---------- 打开的书：放大、翻页、合上 ---------- */
 const reader = $('reader'), book = $('book'), lp = $('lp'), rp = $('rp'), leaf = $('leaf'), coverMini = $('coverMini');
@@ -753,7 +761,32 @@ reader.addEventListener('click', e => { if (e.target === reader) closeBook(); })
 addEventListener('keydown', e => { if (cur === null) return; if (e.key === 'Escape') closeBook(); if (e.key === 'ArrowRight') flip(1); if (e.key === 'ArrowLeft') flip(-1); });
 
 /* ---------- 文章列表 ---------- */
-$('posts').innerHTML = books[0][4].slice(0,6).map((t,i) => `<li class="rv" style="--d:${i*.07}s"><a href="${chURL('ai-agent',i)}" data-n="${String(i+1).padStart(2,'0')}"><span class="t">${t}</span><span class="b mono">第 ${String(i+1).padStart(2,'0')} 章</span></a></li>`).join('');
+function renderPosts(posts){
+  const lead = document.querySelector('.writing .lead');
+  if (posts && posts.length) {
+    lead.textContent = '最近写的文章，完整内容在技术博客。';
+    $('posts').innerHTML = posts.slice(0,6).map((p,i) => `<li class="rv" style="--d:${i*.07}s"><a href="${new URL(p.url, BLOG).href}" data-n="${String(i+1).padStart(2,'0')}"><span class="t">${p.title.replace(/</g,'&lt;')}</span><span class="b mono">${p.date}</span></a></li>`).join('');
+  } else {
+    $('posts').innerHTML = books[0][4].slice(0,6).map((t,i) => `<li class="rv" style="--d:${i*.07}s"><a href="${chURL(books[0][0],i)}" data-n="${String(i+1).padStart(2,'0')}"><span class="t">${t}</span><span class="b mono">第 ${String(i+1).padStart(2,'0')} 章</span></a></li>`).join('');
+  }
+  if (window.__io) $('posts').querySelectorAll('.rv').forEach(el => window.__io.observe(el));   // 数据晚到时重新挂上进场动画
+}
+renderPosts(null);
+
+/* 从博客读书目和文章（同域）；读不到就用页面里的兜底数据 */
+const blogReady = Promise.all(['books.json','posts.json'].map(f => fetch(BLOG + f, {cache:'no-store'}).then(r => r.ok ? r.json() : Promise.reject(r.status))))
+  .then(([bk, ps]) => {
+    if (Array.isArray(bk) && bk.length) {
+      books = bk.map((b,i) => {
+        const [bg, fg] = palette[b.id] || extraColors[i % extraColors.length];
+        chLinks[b.id] = b.chapters.map(c => new URL(c.url, BLOG).href);
+        return [b.id, b.title, bg, fg, b.chapters.map(c => c.title.replace(/^第\s*\d+\s*章\s*/, ''))];
+      });
+    }
+    renderPosts(Array.isArray(ps) ? ps : null);
+  })
+  .catch(() => {})
+  .finally(() => { buildDesk(); window.__blogLoaded = true; });
 
 if (fine && !reduce) {
   const pk = document.createElement('div'); pk.className = 'peek'; pk.setAttribute('aria-hidden', 'true');
@@ -770,6 +803,7 @@ if (fine && !reduce) {
 
 /* ---------- 滚动 ---------- */
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
+window.__io = io;
 document.querySelectorAll('.rv').forEach(el => io.observe(el));
 const bar = $('progress');
 function onScroll(){ heroScroll(); pixelScroll(); bar.style.transform = `scaleX(${scrollY / (document.documentElement.scrollHeight - innerHeight)})`; }
