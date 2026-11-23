@@ -186,6 +186,12 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .rv.in{opacity:1;transform:none}
 
 /* ---------- 手机 ---------- */
+@media (min-width:861px) and (max-height:820px){
+  .line{font-size:clamp(60px,min(12vw,14.5vh),210px)}
+  .hero-stage{padding-top:max(80px,10vh)}
+  .hero-intro{bottom:5vh}
+  .badge{top:35%;width:clamp(130px,12vw,170px)}
+}
 @media (max-width:860px){
   header nav{gap:16px}
   .hero{height:150vh}
