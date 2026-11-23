@@ -39,7 +39,7 @@ img{display:block;max-width:100%}
 @media (pointer:fine){body.cur,body.cur a,body.cur button{cursor:none}}
 
 /* ---------- 光标：十字线 + 像素拖影（Bogdan） ---------- */
-#trail{position:fixed;inset:0;pointer-events:none;z-index:60}
+#trail{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:60}
 #cross{position:fixed;left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:none;z-index:61;transition:width .25s var(--ease),height .25s var(--ease),margin .25s var(--ease);mix-blend-mode:difference}
 #cross::before,#cross::after{content:"";position:absolute;background:#F3EFE6}
 #cross::before{left:50%;top:0;bottom:0;width:1px}
@@ -420,22 +420,27 @@ const chURL = (slug,i) => `${R}${slug}/chapter-${String(i+1).padStart(2,'0')}/`;
 /* ---------- 光标 ---------- */
 if (fine && !reduce) {
   const cv = $('trail'), ctx = cv.getContext('2d'), cross = $('cross');
-  let W, H, cells = [], last = null;
-  const S = 14;
-  const fit = () => { const d = Math.min(2, devicePixelRatio||1); W = innerWidth; H = innerHeight; cv.width = W*d; cv.height = H*d; ctx.setTransform(d,0,0,d,0,0); };
+  let W, H, cells = [], last = null, px = null, py = null;
+  const S = 14, LIFE = 300;
+  const mark = (x, y, t) => { const k = Math.floor(x/S)+','+Math.floor(y/S); if (k !== last) { last = k; cells.push({x:Math.floor(x/S)*S, y:Math.floor(y/S)*S, t}); } };
+  const fit = () => { const d = Math.min(2, devicePixelRatio||1); W = innerWidth; H = innerHeight; cv.width = W*d; cv.height = H*d; cv.style.width = W+"px"; cv.style.height = H+"px"; ctx.setTransform(d,0,0,d,0,0); };
   fit(); addEventListener('resize', fit);
   addEventListener('pointermove', e => {
     cross.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
-    const k = Math.floor(e.clientX/S)+','+Math.floor(e.clientY/S);
-    if (k !== last) { last = k; cells.push({x:Math.floor(e.clientX/S)*S, y:Math.floor(e.clientY/S)*S, t:performance.now()}); }
+    const t = performance.now(), x = e.clientX, y = e.clientY;
+    if (px !== null) {   // 快速移动时补齐中间的格子，拖影不断开
+      const n = Math.min(60, Math.ceil(Math.hypot(x-px, y-py) / (S/2)));
+      for (let i = 1; i < n; i++) mark(px + (x-px)*i/n, py + (y-py)*i/n, t);
+    }
+    mark(x, y, t); px = x; py = y;
   }, {passive:true});
   document.addEventListener('pointerover', e => cross.classList.toggle('big', !!e.target.closest('a,button,.nb,.sign')));
   let drawn = false;
   (function draw(now){
-    cells = cells.filter(c => now - c.t < 520);
+    cells = cells.filter(c => now - c.t < LIFE);
     if (!cells.length) { if (drawn) { ctx.clearRect(0,0,W,H); drawn = false; } requestAnimationFrame(draw); return; }
     ctx.clearRect(0,0,W,H); drawn = true;
-    for (const c of cells) { const a = 1 - (now - c.t)/520; ctx.fillStyle = `rgba(191,58,33,${a*.55})`; ctx.fillRect(c.x+1, c.y+1, S-2, S-2); }
+    for (const c of cells) { const a = 1 - (now - c.t)/LIFE; ctx.fillStyle = `rgba(191,58,33,${a*.55})`; ctx.fillRect(c.x+1, c.y+1, S-2, S-2); }
     requestAnimationFrame(draw);
   })(performance.now());
 } else document.body.classList.remove('cur');
