@@ -39,13 +39,13 @@ img{display:block;max-width:100%}
 @media (pointer:fine){body.cur,body.cur a,body.cur button{cursor:none}}
 
 /* ---------- 光标：十字线 + 像素拖影（Bogdan） ---------- */
-#trail{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:60}
-#cross{position:fixed;left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:none;z-index:61;transition:width .25s var(--ease),height .25s var(--ease),margin .25s var(--ease);mix-blend-mode:difference}
+#trail{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:90}
+#cross{position:fixed;left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;pointer-events:none;z-index:91;transition:width .25s var(--ease),height .25s var(--ease),margin .25s var(--ease);mix-blend-mode:difference}
 #cross::before,#cross::after{content:"";position:absolute;background:#F3EFE6}
 #cross::before{left:50%;top:0;bottom:0;width:1px}
 #cross::after{top:50%;left:0;right:0;height:1px}
 #cross.big{width:56px;height:56px;margin:-28px 0 0 -28px}
-@media (pointer:coarse){#cross,#trail{display:none}}
+@media (pointer:coarse){#cross,#trail,.contact .dots{display:none}}
 
 /* ---------- 顶栏 ---------- */
 header{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gut);mix-blend-mode:difference;color:#F3EFE6}
@@ -193,7 +193,20 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .contact .links a:hover{background:var(--red);border-color:var(--red)}
 .contact .how{max-width:560px;color:var(--dark-mute);margin-top:60px;font-size:14.5px}
 .contact .how b{color:var(--paper);font-weight:500}
-.contact footer{margin-top:12vh;display:flex;justify-content:space-between;color:var(--dark-mute);border-top:1px solid #3a342d;padding-top:18px;flex-wrap:wrap;gap:10px}
+.contact{overflow:hidden}
+.contact>*{position:relative;z-index:1}
+.contact .dots{position:absolute;right:0;top:0;width:52%;height:78%;z-index:0;pointer-events:none}
+.contact h2 .ch{display:inline-block;opacity:0;transform:translateY(.5em) rotate(4deg);transition:opacity .7s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--i)*32ms)}
+.contact.in h2 .ch{opacity:1;transform:none}
+.contact h2 .red .ch:last-child{transform-origin:50% 90%}
+.contact.in h2 .red .ch:last-child{animation:nod 3.2s 1.6s var(--ease) infinite}
+@keyframes nod{0%,70%,100%{transform:none}78%{transform:rotate(-12deg)}86%{transform:rotate(8deg)}93%{transform:rotate(-3deg)}}
+.marq{margin:12vh calc(var(--gut)*-1) 0;overflow:hidden;white-space:nowrap;border-top:1px solid #3a342d;border-bottom:1px solid #3a342d;padding:2vh 0}
+.marq .track{display:inline-flex;will-change:transform}
+.marq span{font-family:var(--latin);font-weight:900;font-size:clamp(44px,8vw,128px);line-height:1;padding-right:.6em;color:transparent;-webkit-text-stroke:1px #6b6157;transition:color .4s,-webkit-text-stroke-color .4s}
+.marq span i{font-style:normal;color:var(--red);-webkit-text-stroke:0}
+.marq:hover span{-webkit-text-stroke-color:var(--paper)}
+.contact footer{margin-top:6vh;display:flex;justify-content:space-between;color:var(--dark-mute);border-top:1px solid #3a342d;padding-top:18px;flex-wrap:wrap;gap:10px}
 
 .rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .rv.in{opacity:1;transform:none}
@@ -360,12 +373,14 @@ header nav a:hover::after,header nav a.on::after{transform:scaleX(1);transform-o
 
 <!-- 联系 -->
 <section class="contact" id="contact">
+  <canvas class="dots" id="dots" aria-hidden="true"></canvas>
   <h2>在找 AI 应用开发的机会，<br><span class="red">聊聊？</span></h2>
   <div class="links">
     <a class="btn up mag" href="https://github.com/bmdy6">GitHub <i class="ar">↗</i></a>
     <a class="btn up mag" href="https://plan.xiaoliang.tech/reader/">知识书房 <i class="ar">↗</i></a>
   </div>
   <p class="how">技术栈：Python / FastAPI、LangGraph、MCP、RAG（混合检索 + Rerank）、Langfuse 评测追踪、React、Swift。<br><br>这些项目都是<b>一个人带两个 AI</b> 做的：我定需求、做最后验收，Claude 写 Issue、出设计、审代码，Codex 小轮开发。每个仓库都留着真实的 Issue 和 PR。</p>
+  <div class="marq" aria-hidden="true"><div class="track" id="marq"><span>Let’s build with AI <i>✦</i></span><span>Agents · MCP · RAG <i>✦</i></span><span>Let’s build with AI <i>✦</i></span><span>Agents · MCP · RAG <i>✦</i></span></div></div>
   <footer class="mono"><span>© 2026 XIAOLIANG.TECH</span><span>页面源码开源 · github.com/bmdy6/xiaoliang-tech</span></footer>
 </section>
 
@@ -627,6 +642,60 @@ const secIO = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
 }), { rootMargin: '-45% 0px -50% 0px' });
 ['work','study','writing','contact'].forEach(id => secIO.observe($(id)));
+
+/* ---------- 联系区：标题逐字、像素点阵、滚动字带 ---------- */
+(() => {
+  const sec = $('contact'), h2 = sec.querySelector('h2');
+  if (reduce) { sec.classList.add('in'); return; }
+  let n = 0;
+  const walk = node => [...node.childNodes].forEach(c => {
+    if (c.nodeType === 3) {
+      const f = document.createDocumentFragment();
+      for (const ch of c.textContent) { if (ch === ' ') { f.appendChild(document.createTextNode(' ')); continue; } const s = document.createElement('span'); s.className = 'ch'; s.style.setProperty('--i', n++); s.textContent = ch; f.appendChild(s); }
+      c.replaceWith(f);
+    } else if (c.nodeType === 1 && c.tagName !== 'BR') walk(c);
+  });
+  h2.setAttribute('aria-label', h2.textContent); walk(h2);
+
+  let vis = false;
+  new IntersectionObserver(es => es.forEach(e => { vis = e.isIntersecting; if (vis) sec.classList.add('in'); }), {threshold:.2}).observe(sec);
+
+  // 滚动字带：自己慢慢走，滚动越快走得越快，方向跟着滚动
+  const tr = $('marq'); let x = 0, dir = -1, lastY = scrollY;
+  // 像素点阵：鼠标附近的点变大变红，离开后慢慢暗下去
+  const cv = $('dots'), ctx = cv.getContext('2d'), G = 22;
+  let W = 0, H = 0, pts = [], mx = -999, my = -999;
+  const fit = () => {
+    const d = Math.min(2, devicePixelRatio||1), r = cv.getBoundingClientRect();
+    W = r.width; H = r.height; cv.width = W*d; cv.height = H*d; ctx.setTransform(d,0,0,d,0,0);
+    pts = []; for (let y = G; y < H; y += G) for (let x2 = G; x2 < W; x2 += G) pts.push({x:x2, y, v:0});
+  };
+  fit(); addEventListener('resize', fit);
+  addEventListener('pointermove', e => { if (!vis) return; const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; }, {passive:true});
+  sec.addEventListener('pointerleave', () => { mx = my = -999; });
+  (function loop(){
+    if (vis) {
+      const dy = scrollY - lastY; lastY = scrollY; if (dy) dir = dy > 0 ? -1 : 1;
+      x += dir * (0.6 + Math.min(12, Math.abs(dy) * .25));
+      const half = tr.scrollWidth / 2; if (x <= -half) x += half; if (x > 0) x -= half;
+      tr.style.transform = `translate3d(${x}px,0,0)`;
+      if (fine) {
+        ctx.clearRect(0,0,W,H);
+        const t = performance.now() / 1000;
+        for (const p of pts) {
+          const d = Math.hypot(p.x - mx, p.y - my);
+          const target = d < 140 ? 1 - d/140 : 0;
+          p.v += (target - p.v) * (target > p.v ? .35 : .06);
+          const idle = .5 + .5 * Math.sin(t*1.2 + p.x*.02 + p.y*.015);   // 没鼠标时也有一层很淡的呼吸
+          const r = 1 + p.v * 4.5;
+          ctx.fillStyle = p.v > .05 ? `rgba(191,58,33,${.25 + p.v*.75})` : `rgba(243,239,230,${.07 + idle*.06})`;
+          ctx.fillRect(p.x - r, p.y - r, r*2, r*2);
+        }
+      }
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
 
 /* 磁吸按钮 */
 if (fine && !reduce) {
