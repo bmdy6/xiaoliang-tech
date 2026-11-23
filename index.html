@@ -45,7 +45,8 @@ img{display:block;max-width:100%}
 #cross::before{left:50%;top:0;bottom:0;width:1px}
 #cross::after{top:50%;left:0;right:0;height:1px}
 #cross.big{width:56px;height:56px;margin:-28px 0 0 -28px}
-@media (pointer:coarse){#cross,#trail,.contact .dots{display:none}}
+@media (pointer:coarse){#cross,#trail{display:none}}
+@media (max-width:859px){.contact .dots{display:none}}
 
 /* ---------- 顶栏 ---------- */
 header{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gut);mix-blend-mode:difference;color:#F3EFE6}
@@ -195,7 +196,7 @@ header nav a:hover{text-decoration:underline;text-underline-offset:4px}
 .contact .how b{color:var(--paper);font-weight:500}
 .contact{overflow:hidden}
 .contact>*{position:relative;z-index:1}
-.contact .dots{position:absolute;right:0;top:0;width:52%;height:78%;z-index:0;pointer-events:none}
+.contact .dots{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .contact h2 .ch{display:inline-block;opacity:0;transform:translateY(.5em) rotate(4deg);transition:opacity .7s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--i)*32ms)}
 .contact.in h2 .ch{opacity:1;transform:none}
 .contact h2 .red .ch:last-child{transform-origin:50% 90%}
@@ -660,41 +661,74 @@ const secIO = new IntersectionObserver(es => es.forEach(e => {
   let vis = false;
   new IntersectionObserver(es => es.forEach(e => { vis = e.isIntersecting; if (vis) sec.classList.add('in'); }), {threshold:.2}).observe(sec);
 
-  // 滚动字带：自己慢慢走，滚动越快走得越快，方向跟着滚动
-  const tr = $('marq'); let x = 0, dir = -1, lastY = scrollY;
-  // 像素点阵：鼠标附近的点变大变红，离开后慢慢暗下去
-  const cv = $('dots'), ctx = cv.getContext('2d'), G = 22;
-  let W = 0, H = 0, pts = [], mx = -999, my = -999;
-  const fit = () => {
-    const d = Math.min(2, devicePixelRatio||1), r = cv.getBoundingClientRect();
-    W = r.width; H = r.height; cv.width = W*d; cv.height = H*d; ctx.setTransform(d,0,0,d,0,0);
-    pts = []; for (let y = G; y < H; y += G) for (let x2 = G; x2 < W; x2 += G) pts.push({x:x2, y, v:0});
+  // 滚动字带：自己慢慢走，滚动越快走得越快、方向跟着滚动，还会顺着速度倾斜
+  const tr = $('marq'); let x = 0, dir = -1, lastY = scrollY, sk = 0;
+
+  // 像素粒子：聚成一个词，几秒换下一个；鼠标把它们推开，移开后弹回原位
+  const cv = $('dots'), ctx = cv.getContext('2d');
+  const WORDS = ['聊聊', 'AI', 'MCP', 'Agent', 'RAG'], STEP = 6, HOLD = 3200;
+  let W = 0, H = 0, ps = [], shapes = [], wi = 0, nextAt = 0, cx = -999, cy = -999, ready = false;
+  const area = () => {
+    const sr = sec.getBoundingClientRect(), hr = h2.getBoundingClientRect(), mr = tr.parentNode.getBoundingClientRect();
+    const x0 = Math.round(W * .42), top = Math.round(hr.bottom - sr.top + 10), bot = Math.round(mr.top - sr.top - 24);
+    return { x: x0, y: top, w: Math.round(W * .97) - x0, h: Math.max(140, bot - top) };
   };
-  fit(); addEventListener('resize', fit);
-  addEventListener('pointermove', e => { if (!vis) return; const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; }, {passive:true});
-  sec.addEventListener('pointerleave', () => { mx = my = -999; });
-  (function loop(){
+  const sample = (word, b) => {
+    const o = document.createElement('canvas'); o.width = b.w; o.height = b.h;
+    const c = o.getContext('2d'), fam = /[一-鿿]/.test(word) ? '"Noto Serif SC"' : 'Fraunces';
+    let size = b.h * .92; c.font = `900 ${size}px ${fam}`;
+    const mw = c.measureText(word).width; if (mw > b.w * .94) size *= b.w * .94 / mw;
+    c.font = `900 ${size}px ${fam}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff';
+    c.fillText(word, b.w / 2, b.h / 2);
+    const d = c.getImageData(0, 0, b.w, b.h).data, out = [];
+    for (let y = 0; y < b.h; y += STEP) for (let x2 = 0; x2 < b.w; x2 += STEP) if (d[(y * b.w + x2) * 4 + 3] > 140) out.push([b.x + x2, b.y + y]);
+    for (let i = out.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
+  };
+  const aim = () => {
+    const sh = shapes[wi];
+    ps.forEach((p, i) => { const h = sh[i % sh.length]; p.tx = h[0]; p.ty = h[1]; p.dup = i >= sh.length;
+      p.vx += (Math.random() - .5) * 14; p.vy += (Math.random() - .5) * 14; });   // 换词时先炸开一下
+  };
+  const build = () => {
+    const dpr = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (innerWidth < 860) { ready = false; return; }
+    const b = area(); shapes = WORDS.map(w => sample(w, b));
+    const n = Math.max(...shapes.map(x => x.length));
+    while (ps.length < n) ps.push({ x: Math.random() * W, y: Math.random() * H, vx: 0, vy: 0, tx: 0, ty: 0, red: Math.random() < .14, dup: false });
+    ps.length = n; aim(); ready = true; nextAt = performance.now() + HOLD;
+  };
+  Promise.all([document.fonts.load('900 100px "Noto Serif SC"', '聊'), document.fonts.load('900 100px Fraunces', 'AI')]).catch(() => {}).then(build);
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+  addEventListener('pointermove', e => { cx = e.clientX; cy = e.clientY; }, { passive: true });
+  document.addEventListener('pointerleave', () => { cx = cy = -999; });
+
+  (function loop(now){
     if (vis) {
       const dy = scrollY - lastY; lastY = scrollY; if (dy) dir = dy > 0 ? -1 : 1;
       x += dir * (0.6 + Math.min(12, Math.abs(dy) * .25));
       const half = tr.scrollWidth / 2; if (x <= -half) x += half; if (x > 0) x -= half;
-      tr.style.transform = `translate3d(${x}px,0,0)`;
-      if (fine) {
-        ctx.clearRect(0,0,W,H);
-        const t = performance.now() / 1000;
-        for (const p of pts) {
-          const d = Math.hypot(p.x - mx, p.y - my);
-          const target = d < 140 ? 1 - d/140 : 0;
-          p.v += (target - p.v) * (target > p.v ? .35 : .06);
-          const idle = .5 + .5 * Math.sin(t*1.2 + p.x*.02 + p.y*.015);   // 没鼠标时也有一层很淡的呼吸
-          const r = 1 + p.v * 4.5;
-          ctx.fillStyle = p.v > .05 ? `rgba(191,58,33,${.25 + p.v*.75})` : `rgba(243,239,230,${.07 + idle*.06})`;
-          ctx.fillRect(p.x - r, p.y - r, r*2, r*2);
+      sk += (Math.max(-14, Math.min(14, -dy * .6)) - sk) * .12;
+      tr.style.transform = `translate3d(${x}px,0,0) skewX(${sk.toFixed(2)}deg)`;
+      if (ready) {
+        if (now > nextAt) { wi = (wi + 1) % WORDS.length; aim(); nextAt = now + HOLD; }
+        const r = cv.getBoundingClientRect(), mx = cx - r.left, my = cy - r.top, R = 110;
+        ctx.clearRect(0, 0, W, H);
+        for (const p of ps) {
+          p.vx += (p.tx - p.x) * .045; p.vy += (p.ty - p.y) * .045;
+          const dx = p.x - mx, dy2 = p.y - my, d2 = dx * dx + dy2 * dy2;
+          if (d2 < R * R) { const d = Math.sqrt(d2) || 1, f = (1 - d / R) * 9; p.vx += dx / d * f; p.vy += dy2 / d * f; }
+          p.vx *= .8; p.vy *= .8; p.x += p.vx; p.y += p.vy;
+          const sp = Math.min(1, Math.hypot(p.vx, p.vy) / 6);          // 动得越快越红越大
+          const sz = 3.2 + sp * 2;
+          ctx.fillStyle = p.red || sp > .35 ? `rgba(191,58,33,${.75 + sp * .25})` : `rgba(243,239,230,${p.dup ? .35 : .82})`;
+          ctx.fillRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
         }
       }
     }
     requestAnimationFrame(loop);
-  })();
+  })(performance.now());
 })();
 
 /* 磁吸按钮 */
