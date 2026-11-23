@@ -136,6 +136,11 @@ async function desktop(b) {
     const inside = await p.evaluate(([x, y, t]) => [...document.querySelectorAll('.contact .links a')].find(a => a.textContent.includes(t)).contains(document.elementFromPoint(x, y)), [bb.x + bb.width / 2, bb.y + bb.height / 2, txt]);
     ok(`联系区「${txt}」按钮磁吸后仍能点到`, inside, `按钮位移 ${Math.round(bb2.x - bb.x)},${Math.round(bb2.y - bb.y)}`);
   }
+  await p.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await realClick(p, p.locator('#wx')); await p.waitForTimeout(300);
+  const clip = await p.evaluate(() => navigator.clipboard.readText().catch(() => ''));
+  const tip = await p.locator('#wx .tip').textContent();
+  ok('联系区「微信」点击复制微信号', clip === 'bmdyxl' && tip.includes('已复制'), `剪贴板=${clip} 提示=${tip}`);
   ok('桌面端无 JS 报错', errs.length === 0, errs.join(' | '));
 
   // 8. 所有外链状态
